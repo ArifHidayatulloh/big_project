@@ -11,4 +11,10 @@ class BudgetDescription extends Model
 
     protected $table = 'budget_descriptions';
     protected $guarded = ['id'];
+
+    // Model BudgetDescription
+    public function subcategory()
+    {
+        return $this->belongsTo(BudgetSubcategorie::class, 'subcategory_id');
+    }
 }

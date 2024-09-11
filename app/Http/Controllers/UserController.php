@@ -11,10 +11,15 @@ use Illuminate\Validation\ValidationException;
 
 class UserController extends Controller
 {
-    function index()
+    function index(Request $request)
     {
-        $users = User::paginate(10);
-        return view('entity.users.index', compact('users'));
+        $search = null;
+        $search = $request->get('search');
+        $users = User::query()->when($search, function ($query, $search){
+            return $query->where('name', 'like', '%'.$search.'%')
+                ->orWhere('nik', 'like', '%'.$search.'%');
+        })->paginate(10);
+        return view('entity.users.index', compact('users','search'));
     }
 
     function create()

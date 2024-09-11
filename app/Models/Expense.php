@@ -10,4 +10,10 @@ class Expense extends Model
     use HasFactory;
     protected $table = 'expenses';
     protected $guarded = ['id'];
+
+    // Model Expense
+    public function monthlyBudget()
+    {
+        return $this->belongsTo(MonthlyBudget::class, 'budget_id');
+    }
 }

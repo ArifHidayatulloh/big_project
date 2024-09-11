@@ -85,40 +85,45 @@
             <!-- /.row -->
 
             <div class="row">
+                <div class="col-sm-6 ml-1">
+                    <h3 class="m-0 text-m">Working Lists</h3>
+                </div>
                 <!-- Statistics Box -->
                 <div class="col-md-8">
+
+                    <hr>
                     <div class="row">
-                        <div class="col-lg-4 col-6">
+                        <div class="col-lg-4 col-12">
                             <!-- Small Box -->
-                            <div class="small-box bg-danger">
+                            <div class="small-box bg-warning">
                                 <div class="inner">
                                     <h3>65</h3>
                                     <p>Unique Visitors</p>
                                 </div>
                                 <div class="icon">
-                                    <i class="ion ion-pie-graph"></i>
+                                    <i class="ion ion-clipboard"></i>
                                 </div>
                                 <a href="#" class="small-box-footer">
                                     More info <i class="fas fa-arrow-circle-right"></i>
                                 </a>
                             </div>
                         </div>
-                        <div class="col-lg-4 col-6">
+                        <div class="col-lg-4 col-12">
                             <!-- Small Box -->
-                            <div class="small-box bg-danger">
+                            <div class="small-box bg-success">
                                 <div class="inner">
                                     <h3>65</h3>
                                     <p>Unique Visitors</p>
                                 </div>
                                 <div class="icon">
-                                    <i class="ion ion-pie-graph"></i>
+                                    <i class="ion ion-clipboard"></i>
                                 </div>
                                 <a href="#" class="small-box-footer">
                                     More info <i class="fas fa-arrow-circle-right"></i>
                                 </a>
                             </div>
                         </div>
-                        <div class="col-lg-4 col-6">
+                        <div class="col-lg-4 col-">
                             <!-- Small Box -->
                             <div class="small-box bg-danger">
                                 <div class="inner">
@@ -126,7 +131,7 @@
                                     <p>Unique Visitors</p>
                                 </div>
                                 <div class="icon">
-                                    <i class="ion ion-pie-graph"></i>
+                                    <i class="ion ion-clipboard"></i>
                                 </div>
                                 <a href="#" class="small-box-footer">
                                     More info <i class="fas fa-arrow-circle-right"></i>
@@ -138,34 +143,62 @@
 
                 <!-- Profile Card -->
                 <div class="col-md-4">
-                    <div class="card card-primary card-outline">
+                    <div class="card card-info card-outline">
                         <div class="card-body box-profile">
                             <div class="text-center">
-                                <img class="profile-user-img img-fluid img-circle" src="{{ asset('assets/images/male_icon.png') }}"
+                                <img class="profile-user-img img-fluid img-circle"
+                                    src="{{ asset('assets/images/' . (Auth::user()->gender == 'L' ? 'male_icon.png' : 'female_icon.png')) }}"
                                     alt="User profile picture">
                             </div>
 
-                            <h3 class="profile-username text-center">Nina Mcintire</h3>
+                            <h3 class="profile-username text-center">{{ Auth::user()->name }}</h3>
 
-                            <p class="text-muted text-center">Software Engineer</p>
+                            <p class="text-muted text-center">
+                                {{ Auth::user()->nik }}
+                            </p>
 
                             <ul class="list-group list-group-unbordered mb-3">
                                 <li class="list-group-item">
-                                    <b>Followers</b> <a class="float-right">1,322</a>
+                                    <b>Phone</b> <a class="float-right">{{ Auth::user()->phone }}</a>
                                 </li>
                                 <li class="list-group-item">
-                                    <b>Following</b> <a class="float-right">543</a>
+                                    <b>Email</b> <a class="float-right">{{ Auth::user()->email }}</a>
                                 </li>
                                 <li class="list-group-item">
-                                    <b>Friends</b> <a class="float-right">13,287</a>
+                                    <b>Position</b> <a class="float-right">
+                                        @if (Auth::user()->role == 1)
+                                            Pengurus
+                                        @endif
+                                        @if (Auth::user()->role == 2)
+                                            General Manager
+                                        @endif
+                                        @if (Auth::user()->role == 3)
+                                            Manager
+                                        @endif
+                                        @if (Auth::user()->role == 4)
+                                            KA Unit
+                                        @endif
+                                        @if (Auth::user()->role == 5)
+                                            Staff
+                                        @endif
+                                    </a>
+                                </li>
+                                <li class="list-group-item">
+                                    <b>Address</b> <a class="float-right text-right"
+                                        style="width: 250px">{{ Auth::user()->address }}</a>
+                                </li>
+                                <li class="list-group-item">
+                                    <b>Join Date</b> <a
+                                        class="float-right">{{ Auth::user()->join_date != null ? Auth::user()->join_date->format('d M Y') : '' }}</a>
                                 </li>
                             </ul>
 
-                            <a href="#" class="btn btn-primary btn-block"><b>Follow</b></a>
+                            <a href="#" class="btn btn-info btn-block"><b>Edit Profile</b></a>
                         </div>
                         <!-- /.card-body -->
                     </div>
                 </div>
+
             </div>
             <!-- /.row -->
         </div><!-- /.container-fluid -->

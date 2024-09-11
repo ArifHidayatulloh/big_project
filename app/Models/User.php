@@ -12,6 +12,12 @@ class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
+
+    // Menentukan bahwa NIK adalah kolom username
+    public function username()
+    {
+        return 'nik';
+    }
     /**
      * The attributes that are mass assignable.
      *

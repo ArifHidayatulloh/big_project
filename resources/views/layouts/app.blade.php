@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Control Budget | KKI</title>
+    <title>OPERATIONAL | KKI</title>
 
     {{-- -------- Admin LTE -------- --}}
 
@@ -71,6 +71,8 @@
         {{-- Content --}}
         <div class="content-wrapper">
             @yield('content')
+            @yield('styles')
+            @yield('scripts')
             {{-- Toastr --}}
             @include('partials.toastr')
             {{-- End of Toastr --}}

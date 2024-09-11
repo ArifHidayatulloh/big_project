@@ -41,11 +41,11 @@
             </div>
             <!-- /.card-header -->
             <div class="card-body table-responsive p-0" style="">
-                <table class="table table-head-fixed text-nowrap">
+                <table class="table table-head-fixed table-striped text-nowrap">
                     <thead class="text-center">
                         <tr>
                             <th>No</th>
-                            <th>Employee</th>
+                            <th class="text-left">Employee</th>
                             <th>Position</th>
                             <th>Department</th>
                             <th>Actions</th>
@@ -55,7 +55,7 @@
                         @forelse ($depUsers as $item)
                             <tr>
                                 <td>{{ $loop->iteration }}</td>
-                                <td>{{ $item->user->name }}</td>
+                                <td class="text-left">{{ $item->user->name }}</td>
                                 <td>
                                     @if ($item->user->role == 1)
                                         Pengurus
@@ -74,7 +74,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="4">No departments users found</td>
+                                <td colspan="5">No departments users found</td>
                             </tr>
                         @endforelse
                     </tbody>

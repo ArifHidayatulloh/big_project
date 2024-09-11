@@ -15,7 +15,7 @@
                 </div><!-- /.col -->
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item"><a href="#">Home</a></li>
+                        <li class="breadcrumb-item"><a href="/">Home</a></li>
                         <li class="breadcrumb-item active">Control Budget</li>
                     </ol>
                 </div><!-- /.col -->
@@ -24,24 +24,85 @@
     </div>
     <!-- /.content-header -->
 
-    <section class="content">
-        <div class="container-fluid">
-            <div class="row">
-                <div class="col-lg-3 col-6">
-                    <!-- small box -->
-                    <div class="small-box bg-info">
-                        <div class="inner">
-                            <h3>150</h3>
+    @if (Auth::user()->role == 1 || Auth::user()->role == 2 || Auth::user()->role == 3)
+        <section class="content">
+            <div class="container-fluid">
+                <div class="row">
+                    @forelse ($departments as $department)
+                        <div class="col-lg-3 col-6">
+                            <!-- small box -->
+                            <div class="small-box bg-info">
+                                <div class="inner">
+                                    <h3 class="text-lg">{{ $department->name }}</h3>
 
-                            <p>New Orders</p>
+                                    <p>Department Budget</p>
+                                </div>
+                                <div class="icon">
+                                    <i class="ion ion-briefcase"></i>
+                                </div>
+                                <a href="/control-budget/cost-overview/{{ $department->id }}"
+                                    class="small-box-footer text-dark">More
+                                    info <i class="fas fa-arrow-circle-right"></i></a>
+                            </div>
                         </div>
-                        <div class="icon">
-                            <i class="ion ion-bag"></i>
-                        </div>
-                        <a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
-                    </div>
+                    @empty
+                        <p>No department found</p>
+                    @endforelse
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
+    @elseif(Auth::user()->unit_id != 1)
+        <section class="content">
+            <div class="container-fluid">
+                <div class="row">
+                    @forelse ($departments as $department)
+                        <div class="col-lg-3 col-6">
+                            <!-- small box -->
+                            <div class="small-box bg-info">
+                                <div class="inner">
+                                    <h3 class="text-lg">{{ $department->name }}</h3>
+
+                                    <p>Department Budget</p>
+                                </div>
+                                <div class="icon">
+                                    <i class="ion ion-briefcase"></i>
+                                </div>
+                                <a href="/control-budget/expenses/{{ $department->id }}" class="small-box-footer text-dark">More
+                                    info <i class="fas fa-arrow-circle-right"></i></a>
+                            </div>
+                        </div>
+                    @empty
+                        <p>No department found</p>
+                    @endforelse
+                </div>
+            </div>
+        </section>
+    @else
+        <section class="content">
+            <div class="container-fluid">
+                <div class="row">
+                    @forelse ($departments as $department)
+                        <div class="col-lg-3 col-6">
+                            <!-- small box -->
+                            <div class="small-box bg-info">
+                                <div class="inner">
+                                    <h3 class="text-lg">{{ $department->name }}</h3>
+
+                                    <p>Department Budget</p>
+                                </div>
+                                <div class="icon">
+                                    <i class="ion ion-briefcase"></i>
+                                </div>
+                                <a href="/control-budget/unit/{{ $department->id }}" class="small-box-footer text-dark">More
+                                    info <i class="fas fa-arrow-circle-right"></i></a>
+                            </div>
+                        </div>
+                    @empty
+                        <p>No department found</p>
+                    @endforelse
+                </div>
+            </div>
+        </section>
+    @endif
+
 @endsection

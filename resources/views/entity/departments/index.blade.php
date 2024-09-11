@@ -41,11 +41,11 @@
             </div>
             <!-- /.card-header -->
             <div class="card-body table-responsive p-0" style="">
-                <table class="table table-head-fixed text-nowrap">
+                <table class="table table-head-fixed table-striped text-nowrap">
                     <thead class="text-center">
                         <tr>
                             <th>No</th>
-                            <th>Department</th>
+                            <th class="text-left">Department</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -53,7 +53,7 @@
                         @forelse ($departments as $item)
                             <tr>
                                 <td>{{ $loop->iteration }}</td>
-                                <td>{{ $item->name }}</td>
+                                <td class="text-left">{{ $item->name }}</td>
                                 <td>
                                     <a href="/department/edit/{{ $item->id }}" class="btn btn-warning"><i
                                             class="fas fa-pen"></i></a>

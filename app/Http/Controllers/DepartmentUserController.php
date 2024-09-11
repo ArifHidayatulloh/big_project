@@ -37,7 +37,7 @@ class DepartmentUserController extends Controller
             return back()->withErrors(['data' => 'A user with this department already exists.'])->withInput();
         } else {
             DepartmenUser::create($data);
-            return redirect('/depuser')->with('success', 'Department user as been successfully added.');
+            return redirect('/depuser')->with('success', 'Department user has been successfully added.');
         }
     }
 

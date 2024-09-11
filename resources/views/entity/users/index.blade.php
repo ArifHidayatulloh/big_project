@@ -27,24 +27,26 @@
             <div class="card-header">
                 <a href="/user/create" class="btn btn-dark"><i class="fas fa-plus"></i></a>
                 <div class="card-tools">
-                    <div class="input-group input-group-sm" style="width: 150px;">
-                        <input type="text" name="table_search" class="form-control float-right" placeholder="Search">
+                    <form action="/user">
+                        <div class="input-group input-group-sm" style="width: 150px;">
+                            <input type="search" class="form-control float-right" placeholder="Search" name="search" value="{{ $search }}">
 
-                        <div class="input-group-append">
-                            <button type="submit" class="btn btn-default">
-                                <i class="fas fa-search"></i>
-                            </button>
+                            <div class="input-group-append">
+                                <button type="submit" class="btn btn-default">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
                         </div>
-                    </div>
+                    </form>
                 </div>
             </div>
             <!-- /.card-header -->
             <div class="card-body table-responsive p-0" style="">
-                <table class="table table-head-fixed text-nowrap">
+                <table class="table table-head-fixed table-striped text-nowrap">
                     <thead class="text-center">
                         <tr>
                             <th>No</th>
-                            <th>Name</th>
+                            <th class="text-left">Name</th>
                             <th>NIK</th>
                             <th>Phone</th>
                             <th>Email</th>
