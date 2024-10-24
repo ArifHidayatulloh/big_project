@@ -188,8 +188,9 @@
                                         style="width: 250px">{{ Auth::user()->address }}</a>
                                 </li>
                                 <li class="list-group-item">
-                                    <b>Join Date</b> <a
-                                        class="float-right">{{ Auth::user()->join_date != null ? Auth::user()->join_date->format('d M Y') : '' }}</a>
+                                    <b>Join Date</b>
+                                    <a
+                                        class="float-right">{{ Auth::user()->join_date != null ? Carbon\Carbon::parse(Auth::user()->join_date)->format('d M Y') : '' }}</a>
                                 </li>
                             </ul>
 

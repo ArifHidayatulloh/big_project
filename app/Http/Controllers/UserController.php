@@ -15,11 +15,11 @@ class UserController extends Controller
     {
         $search = null;
         $search = $request->get('search');
-        $users = User::query()->when($search, function ($query, $search){
-            return $query->where('name', 'like', '%'.$search.'%')
-                ->orWhere('nik', 'like', '%'.$search.'%');
+        $users = User::query()->when($search, function ($query, $search) {
+            return $query->where('name', 'like', '%' . $search . '%')
+                ->orWhere('nik', 'like', '%' . $search . '%');
         })->paginate(10);
-        return view('entity.users.index', compact('users','search'));
+        return view('entity.users.index', compact('users', 'search'));
     }
 
     function create()
@@ -114,5 +114,13 @@ class UserController extends Controller
         // Delete the user if no longer in use
         $user->delete();
         return back()->with('success', 'Employee has been successfully deleted.');
+    }
+    
+    public function searchUser(Request $request)
+    {
+        $term = $request->get('term');
+        $users = User::where('name', 'LIKE', '%' . $term . '%')->get();
+
+        return response()->json($users);  // Return hasil pencarian sebagai JSON
     }
 }

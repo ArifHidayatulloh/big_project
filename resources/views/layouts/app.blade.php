@@ -37,22 +37,69 @@
     {{-- ---------- End of Admin LTE -------- --}}
 
     <link rel="shortcut icon" href="{{ asset('assets/images/logo_koperasi_indonesia.png') }}" type="image/x-icon">
+    <!-- Select2 CSS -->
+
 
     <style>
-        .pagination .page-link {
-            color: black;
-            /* Warna hitam untuk halaman yang belum aktif */
+        /* .pagination .page-link {
+            color: black; */
+        /* Warna hitam untuk halaman yang belum aktif */
+        /* } */
+
+        /* .pagination .page-item.active .page-link {
+            background-color: #6c757d; */
+        /* bg-secondary */
+        /* border-color: #6c757d; */
+        /* Sesuaikan border color */
+        /* color: white; */
+        /* Agar teks lebih jelas */
+        /* } */
+
+        .table-hover tbody tr:hover {
+            background-color: #f0f8ff;
+            /* Warna hover pada baris */
+            transition: background-color 0.3s ease;
         }
 
-        .pagination .page-item.active .page-link {
-            background-color: #6c757d;
-            /* bg-secondary */
-            border-color: #6c757d;
-            /* Sesuaikan border color */
-            color: white;
-            /* Agar teks lebih jelas */
+        .btn {
+            transition: all 0.3s ease-in-out;
         }
 
+        .btn-warning {
+            background-color: #ffc107;
+            border-color: #ffc107;
+        }
+
+        .btn-danger {
+            background-color: #dc3545;
+            border-color: #dc3545;
+        }
+
+        .btn-warning:hover {
+            background-color: #e0a800;
+        }
+
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+
+        .table {
+            border-collapse: separate;
+            border-spacing: 0;
+            border-radius: 10px;
+        }
+
+        .card-body {
+            padding: 20px;
+        }
+
+        .card-header {
+            padding-bottom: 15px;
+        }
+
+        .card-footer {
+            padding-top: 10px;
+        }
     </style>
 </head>
 
@@ -120,7 +167,6 @@
     <script src="{{ asset('lte/plugins/toastr/toastr.min.js') }}"></script>
     <!-- AdminLTE App -->
     <script src="{{ asset('lte/dist/js/adminlte.js') }}"></script>
-
     {{-- -------- End of Admin LTE --------- --}}
 
 </body>

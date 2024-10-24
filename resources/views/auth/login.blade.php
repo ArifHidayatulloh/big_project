@@ -40,6 +40,7 @@
             /* Membuat lebar 100% untuk mobile responsiveness */
             max-width: 400px;
             /* Batas maksimal lebar */
+            
         }
 
 
@@ -60,7 +61,7 @@
 </head>
 
 <body>
-    
+
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-md-6">

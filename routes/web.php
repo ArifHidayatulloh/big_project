@@ -1,10 +1,11 @@
 <?php
 
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\ControlBudgetController;
 use App\Http\Controllers\DepartmentUserController;
 use App\Http\Controllers\UnitController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\WorkingListController;
+use App\Http\Controllers\BudgetController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -27,6 +28,9 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/dashboard', function () {
         return view('dashboard');
     });
+
+    Route::get('/search-user', [UserController::class, 'searchUser']);
+
 
     Route::controller(UserController::class)->prefix('user')->group(function () {
         Route::get('/', 'index');
@@ -55,37 +59,46 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('/destroy/{depUser}', 'destroy');
     });
 
-    Route::controller(ControlBudgetController::class)->prefix('control-budget')->group(function () {
+    Route::controller(WorkingListController::class)->prefix('working-list')->group(function () {
         Route::get('/', 'index');
-        Route::get('/unit/{unit}', 'show');
+        Route::get('/create', 'create');
+        Route::post('/store', 'store');
+        Route::get('/{id}', 'show');
+        Route::get('/edit/{id}', 'edit');
+        Route::post('/update/{id}', 'update');
+        Route::get('/destroy/{id}', 'destroy');
+        Route::post('/requestActionPIC/{id}', 'request');
+        Route::get('/updatePIC/{commentId}', 'updatePIC');
+        Route::post('/storeUpdatePIC/{commentId}', 'storeUpdate');
+        Route::get('/editUpdatePIC/{id}', 'editUpdatePIC');
+        Route::post('/storeUpdatePICNew/{id}', 'storeEditUpdate');
+        Route::get('/deleteUpdatePIC/{id}', 'deleteUpdatePIC');
+
+    });
+
+    Route::controller(WorkingListController::class)->prefix('need_approval')->group(function(){
+        Route::get('/', 'request_approve');
+        Route::get('/{id}', 'request_detail');
+        Route::post('/approve/{id}', 'approve');
+        Route::post('/reject/{id}', 'reject');
+    });
+
+    Route::controller(BudgetController::class)->prefix('control-budget')->group(function () {
+        Route::get('/', 'index');
+        Route::post('/store_cost_review', 'store_cost_review');
+        Route::post('/update_cost_review/{id}', 'update_cost_review');
+        Route::get('/destroy_cost_review/{id}', 'destroy_cost_review');
+        Route::get('/{id}','show');
         Route::post('/storeCategory', 'storeCategory');
         Route::post('/storeSubcategory', 'storeSubcategory');
         Route::post('/storeDescription', 'storeDescription');
-
-        // Route category action
-        Route::post('/updateCategory/{category}', 'updateCategory');
-        Route::get('/destroyCategory/{category}', 'destroyCategory');
-
-        // Route subcategory action
-        Route::post('/updateSubcategory/{subcategory}', 'updateSubcategory');
-        Route::get('/destroySubcategory/{subcategory}', 'destroySubcategory');
-
-        // Route description action
-        Route::post('/updateDescription/{description}', 'updateDescription');
-        Route::get('/destroyDescription/{description}', 'destroyDescription');
-
-        // Montly Budget
-        Route::get('/monthly-budget/{unit}', 'formMonthlyBudget');
-        Route::post('/monthly-budget/store', 'storeMonthlyBudget');
-        Route::get('/monthly-budget/{unit}/edit', 'editMonthlyBudget');
-        // Route untuk update Monthly Budget
-        Route::post('/monthly-budget/{unit}/update', 'updateMonthlyBudget');
-        Route::get('/cost-overview/{unit}', 'costOverview');
-        Route::get('/cost-review/{unit}', 'costReview');
-
-        // Expenses
-        Route::get('/expenses/{unit}', 'expenseShow');
-        Route::get('/inputExpense/{unit}', 'inputExpensesForm');
-        Route::post('/storeExpense/{unit}', 'storeExpenses');
+        Route::get('/planned_budget/{costReview}', 'planned_budget');
+        Route::post('/budget_plan_add','plan_budget');
+        Route::get('/review_cost/{costReviewId}', 'review_cost');
     });
+
+
 });
+
+
+

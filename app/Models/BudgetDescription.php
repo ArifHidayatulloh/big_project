@@ -8,13 +8,14 @@ use Illuminate\Database\Eloquent\Model;
 class BudgetDescription extends Model
 {
     use HasFactory;
-
-    protected $table = 'budget_descriptions';
+    protected $table = 'descriptions';
     protected $guarded = ['id'];
 
-    // Model BudgetDescription
-    public function subcategory()
-    {
-        return $this->belongsTo(BudgetSubcategorie::class, 'subcategory_id');
+    public function subcategory(){
+        return $this->belongsTo(BudgetSubcategory::class, 'sub_category_id','id');
+    }
+
+    public function monthly_budget(){
+        return $this->hasMany(MonthlyBudget::class,'description_id');
     }
 }

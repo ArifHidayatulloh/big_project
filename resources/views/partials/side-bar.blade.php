@@ -12,7 +12,7 @@
             <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
                 <!-- Dashboard -->
                 <li class="nav-item menu">
-                    <a href="/dashboard" class="nav-link {{ request()->is('/') ? 'bg-secondary' : '' }}">
+                    <a href="/dashboard" class="nav-link {{ request()->is('dashboard') ? 'bg-primary' : '' }}">
                         <i class="nav-icon fas fa-tachometer-alt"></i>
                         <p>
                             Dashboard
@@ -25,7 +25,7 @@
                     <li class="nav-header">ENTITY</li>
 
                     <li class="nav-item">
-                        <a href="/user" class="nav-link {{ request()->is('user*') ? 'bg-secondary' : '' }}">
+                        <a href="/user" class="nav-link {{ request()->is('user*') ? 'bg-primary' : '' }}">
                             <i class="nav-icon fas fa-users"></i>
                             <p>
                                 Employess
@@ -34,7 +34,7 @@
                     </li>
 
                     <li class="nav-item">
-                        <a href="/department" class="nav-link {{ request()->is('department*') ? 'bg-secondary' : '' }}">
+                        <a href="/department" class="nav-link {{ request()->is('department*') ? 'bg-primary' : '' }}">
                             <i class="nav-icon fas fa-building"></i>
                             <p>
                                 Departments
@@ -43,7 +43,7 @@
                     </li>
 
                     <li class="nav-item">
-                        <a href="/depuser" class="nav-link {{ request()->is('depuser*') ? 'bg-secondary' : '' }}">
+                        <a href="/depuser" class="nav-link {{ request()->is('depuser*') ? 'bg-primary' : '' }}">
                             <i class="nav-icon fas fa-landmark"></i>
                             <p>
                                 Departments Employees
@@ -59,8 +59,7 @@
                 <li class="nav-header">Working List</li>
 
                 <li class="nav-item">
-                    <a href="/working-lists"
-                        class="nav-link {{ request()->is('working-lists') ? 'bg-secondary' : '' }}">
+                    <a href="/working-list" class="nav-link {{ request()->is('working-list*') ? 'bg-primary' : '' }}">
                         <i class="nav-icon fas fa-clipboard"></i>
                         <p>
                             Working Lists
@@ -68,31 +67,18 @@
                     </a>
                 </li>
 
+                @php
+                    use App\Models\WorkingList;
+                    $count_request = WorkingList::where('status', 'Requested')->count();
+                @endphp
                 <li class="nav-item">
-                    <a href="#" class="nav-link {{ request()->is('working-lists/*') ? 'bg-secondary' : '' }}">
-                        <i class="nav-icon fas fa-copy"></i>
+                    <a href="/need_approval" class="nav-link {{ request()->is('need_approval*') ? 'bg-primary' : '' }}">
+                        <i class="nav-icon fas fa-clock"></i>
                         <p>
-                            Working Lists
-                            <i class="fas fa-angle-left right"></i>
-                            <span class="badge badge-info right">6</span>
+                            Need Approval
+                            <span class="badge badge-warning right">{{ $count_request }}</span>
                         </p>
                     </a>
-                    <ul class="nav nav-treeview">
-                        <li class="nav-item">
-                            <a href="/working-lists/data"
-                                class="nav-link {{ request()->is('working-lists/data') ? 'bg-secondary' : '' }}">
-                                <i class="far fa-circle nav-icon"></i>
-                                <p>Work List Data</p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="/working-lists/status-change"
-                                class="nav-link {{ request()->is('working-lists/status-change') ? 'bg-secondary' : '' }}">
-                                <i class="far fa-circle nav-icon"></i>
-                                <p>Status Change Request</p>
-                            </a>
-                        </li>
-                    </ul>
                 </li>
 
                 {{-- End of Working List --}}
@@ -102,7 +88,7 @@
 
                 <li class="nav-item">
                     <a href="/control-budget"
-                        class="nav-link {{ request()->is('control-budget*') ? 'bg-secondary' : '' }}">
+                        class="nav-link {{ request()->is('control-budget*') ? 'bg-primary' : '' }}">
                         <i class="nav-icon fas fa-money-bill-wave"></i>
                         <p>
                             Departments Budgets
@@ -110,8 +96,7 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="/logout"
-                        class="nav-link">
+                    <a href="/logout" class="nav-link">
                         <i class="nav-icon fas fa-power-off"></i>
                         <p>
                             Logout

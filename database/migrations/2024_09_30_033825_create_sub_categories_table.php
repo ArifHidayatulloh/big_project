@@ -13,10 +13,10 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('budget_categories', function (Blueprint $table) {
+        Schema::create('sub_categories', function (Blueprint $table) {
             $table->id();
-            $table->string('name'); // Nama kategori budget
-            $table->foreignId('unit_id')->constrained('units')->onDelete('cascade');
+            $table->foreignId('category_id')->constrained('categories')->onDelete('cascade');
+            $table->string('sub_category_name');
             $table->timestamps();
         });
     }
@@ -28,6 +28,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('budget_categories');
+        Schema::dropIfExists('sub_categories');
     }
 };

@@ -15,10 +15,10 @@ return new class extends Migration
     {
         Schema::create('monthly_budgets', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('description_id')->constrained('budget_descriptions')->onDelete('cascade'); // Menghubungkan dengan budget_descriptions
-            $table->decimal('budget_amount', 15, 2)->nullable(); // Jumlah budget untuk bulan tersebut
-            $table->year('year'); // Tahun budget
-            $table->unsignedTinyInteger('month');
+            $table->foreignId('description_id')->constrained('descriptions')->onDelete('cascade');
+            $table->decimal('planned_budget', 15, 2)->nullable();
+            $table->string('month');
+            $table->string('year');
             $table->timestamps();
         });
     }

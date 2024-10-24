@@ -5,19 +5,17 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class BudgetSubCategorie extends Model
+class BudgetSubCategory extends Model
 {
     use HasFactory;
-
-    protected $table = 'budget_subcategories';
+    protected $table = 'sub_categories';
     protected $guarded = ['id'];
 
     public function category(){
-        return $this->belongsTo(BudgetCategorie::class, 'category_id');
+        return $this->belongsTo(BudgetCategory::class, 'category_id','id');
     }
 
     public function descriptions(){
-        return $this->hasMany(BudgetDescription::class, 'subcategory_id');
+        return $this->hasMany(BudgetDescription::class,'sub_category_id');
     }
-
 }

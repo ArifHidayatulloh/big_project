@@ -8,18 +8,14 @@ use Illuminate\Database\Eloquent\Model;
 class MonthlyBudget extends Model
 {
     use HasFactory;
-
-    protected $table = 'monthly_budgets';
+    protected $table ='monthly_budgets';
     protected $guarded = ['id'];
 
-    // Model MonthlyBudget
-    public function description()
-    {
-        return $this->belongsTo(BudgetDescription::class, 'description_id');
+    public function description(){
+        return $this->belongsTo(BudgetDescription::class, 'description_id','id');
     }
 
-    public function expenses()
-    {
-        return $this->hasMany(Expense::class, 'budget_id');
+    public function actual(){
+        return $this->hasMany(Actual::class, 'monthly_budget_id');
     }
 }

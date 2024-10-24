@@ -11,10 +11,13 @@ use Illuminate\Validation\ValidationException;
 
 class UnitController extends Controller
 {
-    function index(){
-        return view('entity.departments.index',[
-            'departments' => Unit::all(),
-        ]);
+    function index(Request $request){
+        $search = null;
+        $search = $request->get('search');
+        $departments = Unit::query()->when($search, function($query, $search){
+            return $query->where('name', 'like', '%'.$search.'%');
+        })->paginate(10);
+        return view('entity.departments.index',compact('departments','search'));
     }
 
     function create(){
