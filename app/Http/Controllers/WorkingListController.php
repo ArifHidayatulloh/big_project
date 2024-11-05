@@ -17,7 +17,7 @@ use Carbon\Carbon;
 
 class WorkingListController extends Controller
 {
-    function index(Request $request)
+    public function index(Request $request)
     {
         $query = WorkingList::query();
 
@@ -31,13 +31,58 @@ class WorkingListController extends Controller
             $query->where('pic', $request->pic);
         }
 
-        // Filter by Status
-        if ($request->has('status') && $request->status != '') {
-            $query->where('status', $request->status);
+        // Filter by Status (allowing multiple statuses)
+        if ($request->has('status') && is_array($request->status) && count($request->status) > 0) {
+            $query->whereIn('status', $request->status);
         }
 
-        $workingLists = $query->orderBy('created_at', 'desc')->paginate(10)->appends($request->all());
+        // Filter by Date Range (from_date and to_date)
+        if ($request->has('from_date') && $request->has('to_date')) {
+            $fromDate = $request->from_date;
+            $toDate = $request->to_date;
+            if ($fromDate && $toDate) {
+                $query->whereBetween('created_at', [$fromDate, $toDate]);
+            }
+        }
 
+        // Fetch working lists with related data
+        $workingLists = $query->with(['commentDepheads.updatePics', 'department', 'picUser'])
+            ->orderBy('created_at', 'desc')
+            ->paginate(10)
+            ->appends($request->all());
+
+        foreach ($workingLists as $list) {
+            // Panggil metode updateStatusIfNeeded untuk memperbarui status jika perlu
+            $list->updateStatusIfNeeded();
+
+            // Jika status_comment sudah diisi di database, gunakan itu
+            if (!empty($list->status_comment)) {
+                continue; // Skip iterasi ini, karena status sudah ada
+            }
+
+            $hasUpdates = false; // Flag untuk cek apakah ada update
+
+            // Iterasi melalui setiap CommentDephead
+            foreach ($list->commentDepheads as $comment) {
+                if ($comment->updatePics->isNotEmpty()) {
+                    $hasUpdates = true;
+                    break; // Jika sudah ada update, tidak perlu cek lebih lanjut
+                }
+            }
+
+            // Tentukan status berdasarkan flag $hasUpdates
+            if ($hasUpdates) {
+                $list->status_comment = 'In progress';
+            } else {
+                $list->status_comment = 'No start';
+            }
+
+            if ($list->status == 'Done') {
+                $list->status_comment = 'Completed';
+            }
+        }
+
+        // Fetch filter options
         $departments = Unit::orderBy('name', 'asc')->get();
         $pics = User::orderBy('name', 'asc')->get();
 
@@ -137,7 +182,7 @@ class WorkingListController extends Controller
             'deadline' => 'required|date',
             'is_priority' => 'nullable|boolean',
             'complete_date' => 'nullable|date',
-            'status_comment' => 'nullable|string|in:finish,unfinish', // tambahkan validasi untuk status_comment
+            'status_comment' => 'nullable|string|in:completed,uncompleted', // tambahkan validasi untuk status_comment
             'comment_depheads' => 'nullable|array',
             'comment_depheads.*' => 'required|string|max:1000',
         ]);
@@ -163,11 +208,11 @@ class WorkingListController extends Controller
             $score = 100;
         }
         // Jika status Outstanding dan status_comment 'finish'
-        elseif ($status == 'Outstanding' && $validatedData['status_comment'] == 'finish') {
+        elseif ($status == 'Outstanding' && $validatedData['status_comment'] == 'completed') {
             $score = 85;
         }
-        // Jika status Outstanding dan status_comment 'unfinish'
-        elseif ($status == 'Outstanding' && $validatedData['status_comment'] == 'unfinish') {
+        // Jika status Outstanding dan status_comment 'uncompleted'
+        elseif ($status == 'Outstanding' && $validatedData['status_comment'] == 'uncompleted') {
             $score = 50;
         }
 
@@ -338,7 +383,7 @@ class WorkingListController extends Controller
         $workingList = WorkingList::findOrFail($id);
         $validatedData = $request->validate([
             'complete_date' => 'required',
-            'status_comment' => 'required|string|in:finish,unfinish'
+            'status_comment' => 'required|string|in:completed,uncompleted'
         ]);
 
         $status = 'Outstanding';
@@ -347,7 +392,7 @@ class WorkingListController extends Controller
         if ($validatedData['complete_date'] <= $workingList->deadline) {
             $status = 'Done';
             $score = 100;
-        } else if ($validatedData['complete_date'] > $workingList->deadline && $validatedData['status_comment'] == 'finish') {
+        } else if ($validatedData['complete_date'] > $workingList->deadline && $validatedData['status_comment'] == 'completed') {
             $score = 85;
         }
 

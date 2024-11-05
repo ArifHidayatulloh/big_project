@@ -24,6 +24,7 @@ class BudgetController extends Controller
         ]);
     }
 
+    // Cost Review
     function store_cost_review(Request $request)
     {
         // Validasi input
@@ -85,7 +86,9 @@ class BudgetController extends Controller
         $costReview->delete();
         return redirect()->back()->with('success', 'Cost review has been successfully deleted.');
     }
+    // End of Cost Review
 
+    // Category
     function show($id)
     {
         $costReview = CostReview::find($id);
@@ -126,9 +129,12 @@ class BudgetController extends Controller
         ]);
 
         return redirect()->back()->with('success', 'Category added successfully.');
-    }
+    }  
+
+    // End of Category
 
 
+    // Sub Category
     public function storeSubcategory(Request $request)
     {
         // Validasi input
@@ -155,7 +161,10 @@ class BudgetController extends Controller
         return redirect()->back()->with('success', 'Subcategory added successfully.');
     }
 
+    // End of Sub Category
 
+
+    // Description
     public function storeDescription(Request $request)
     {
         // Validasi input
@@ -182,6 +191,10 @@ class BudgetController extends Controller
         return redirect()->back()->with('success', 'Description added successfully.');
     }
 
+    // End of Description
+
+
+    // Monthly Budget
     function planned_budget($costReview)
     {
         $costReview = CostReview::find($costReview);
@@ -228,7 +241,9 @@ class BudgetController extends Controller
 
         return redirect('/control-budget')->with('success', 'Budget has been successfully planned.');
     }
+    // End of Monthly Budget
 
+    // Review
     public function review_cost(Request $request, $costReviewId)
     {
         // Dapatkan cost review terkait
@@ -245,8 +260,7 @@ class BudgetController extends Controller
             $query->where('year', $selectedYear)
                 ->where('month', $selectedMonth);
         }])->where('cost_review_id', $costReviewId)->get();
-
-        // dd($categories);
+        
 
         // Ambil daftar tahun untuk dropdown
         $years = MonthlyBudget::select('year')
@@ -262,5 +276,36 @@ class BudgetController extends Controller
             ->pluck('month');
 
         return view('control_budget.cost_review.review_cost', compact('costReview', 'categories', 'years', 'months', 'selectedYear', 'selectedMonth'));
+    }
+    // End of Review
+
+    public function individualUpdatePage($month, $year)
+    {
+        $months = [
+            1 => 'January',
+            2 => 'February',
+            3 => 'March',
+            4 => 'April',
+            5 => 'May',
+            6 => 'June',
+            7 => 'July',
+            8 => 'August',
+            9 => 'September',
+            10 => 'October',
+            11 => 'November',
+            12 => 'December'
+        ];
+
+        // Mengambil kategori dengan subkategori dan deskripsi, serta memfilter monthly budget berdasarkan bulan dan tahun yang diinginkan
+        $categories = BudgetCategory::with([
+            'subcategory.descriptions' => function ($query) use ($month, $year) {
+                $query->with(['monthlyBudgetPlanned' => function ($query) use ($month, $year) {
+                    $query->where('month', $month)->where('year', $year);
+                }]);
+            }
+        ])->get();
+
+
+        return view('control_budget.cost_review.individual_update', compact('categories', 'month', 'year', 'months'));
     }
 }

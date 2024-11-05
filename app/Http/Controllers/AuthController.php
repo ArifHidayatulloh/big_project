@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class AuthController extends Controller
 {
@@ -37,5 +38,25 @@ class AuthController extends Controller
         $request->session()->regenerate();
 
         return redirect('/');
+    }
+
+    function dashboard()
+    {
+        // Ambil data untuk performance chart per unit
+        $unitPerformance = DB::table('working_lists')
+            ->select('unit_id', 'status', DB::raw('count(*) as total'))
+            ->groupBy('unit_id', 'status')
+            ->get()
+            ->groupBy('unit_id');
+
+        // Ambil data untuk performance chart per user
+        $userPerformance = DB::table('working_lists')
+            ->select('pic', 'status', DB::raw('count(*) as total'))
+            ->groupBy('pic', 'status')
+            ->get()
+            ->groupBy('pic');
+
+
+        return view('dashboard', compact('unitPerformance', 'userPerformance'));
     }
 }

@@ -114,8 +114,9 @@
                         <label for="status_comment">Status Comment</label>
                         <select name="status_comment" id="status_comment" class="form-control">
                             <option value="" disabled selected>Select status comment</option>
-                            <option value="finish" {{ old('status_comment', $item->status_comment) == 'finish' ? 'selected' : '' }}>Finish</option>
-                            <option value="unfinish" {{ old('status_comment', $item->status_comment) == 'unfinish' ? 'selected' : '' }}>Unfinish</option>
+                            <option value="">Without status</option>
+                            <option value="completed" {{ old('status_comment', $item->status_comment) == 'completed' ? 'selected' : '' }}>Completed</option>
+                            <option value="uncompleted" {{ old('status_comment', $item->status_comment) == 'uncompleted' ? 'selected' : '' }}>Uncompleted</option>
                         </select>
                     </div>
 

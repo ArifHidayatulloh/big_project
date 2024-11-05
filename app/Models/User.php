@@ -34,6 +34,9 @@ class User extends Authenticatable
         'join_date',
         'address',
         'unit_id',
+        'access_worklist',
+        'access_control_budget',
+        'access_payment_schedule',
     ];
 
     /**

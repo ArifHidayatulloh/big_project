@@ -25,6 +25,9 @@ return new class extends Migration
             $table->date('join_date')->nullable();
             $table->text('address')->nullable();
             $table->foreignId('unit_id')->nullable()->constrained()->onDelete('cascade');
+            $table->boolean('access_worklist')->default(false);
+            $table->boolean('access_control_budget')->default(false);
+            $table->boolean('access_payment_schedule')->default(false);
             $table->rememberToken();
             $table->timestamps();
         });

@@ -18,7 +18,7 @@ class UserController extends Controller
         $users = User::query()->when($search, function ($query, $search) {
             return $query->where('name', 'like', '%' . $search . '%')
                 ->orWhere('nik', 'like', '%' . $search . '%');
-        })->paginate(10);
+        })->paginate(25);
         return view('entity.users.index', compact('users', 'search'));
     }
 
@@ -44,10 +44,17 @@ class UserController extends Controller
                 'join_date' => ['nullable'],
                 'address' => ['nullable'],
                 'unit_id' => ['nullable'],
+                'access_worklist' => ['nullable'],
+                'access_control_budget' => ['nullable'],
+                'access_payment_schedule' => ['nullable'],
             ]);
 
 
             $data['password'] = bcrypt($data['password']);
+
+            $data['access_worklist'] = $request->has('access_worklist') ? 1 : 0;
+            $data['access_control_budget'] = $request->has('access_control_budget') ? 1 : 0;
+            $data['access_payment_schedule'] = $request->has('access_payment_schedule') ? 1 : 0;
 
             User::create($data);
 
@@ -84,12 +91,19 @@ class UserController extends Controller
                 'join_date' => ['nullable'],
                 'address' => ['nullable'],
                 'unit_id' => ['nullable'],
+                'access_worklist' => ['nullable'],
+                'access_control_budget' => ['nullable'],
+                'access_payment_schedule' => ['nullable'],
             ]);
 
             // Hash password if provided
             if (!empty($request->password)) {
                 $data['password'] = bcrypt($request->password);
             }
+
+            $data['access_worklist'] = $request->has('access_worklist') ? 1 : 0;
+            $data['access_control_budget'] = $request->has('access_control_budget') ? 1 : 0;
+            $data['access_payment_schedule'] = $request->has('access_payment_schedule') ? 1 : 0;
 
             $user->update($data);
             return redirect('/user')->with('success', 'Employee has been successfully updated.');
@@ -115,7 +129,7 @@ class UserController extends Controller
         $user->delete();
         return back()->with('success', 'Employee has been successfully deleted.');
     }
-    
+
     public function searchUser(Request $request)
     {
         $term = $request->get('term');

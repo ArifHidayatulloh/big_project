@@ -6,7 +6,7 @@
         <div class="container-fluid">
             <div class="row mb-2">
                 <div class="col-sm-6">
-                    <h1 class="m-0">{{ $costReview->review_name }} Review</h1>
+                    <h1 class="m-0">{{ $costReview->review_name }}</h1>
                 </div>
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
@@ -49,11 +49,15 @@
                 @endforeach
             </div>
 
-
             <!-- Cost Review Table -->
             <div class="card shadow-sm" style="border-radius: 15px;">
                 <div class="card-header">
                     <h3 class="card-title">Cost Review Summary</h3>
+                    <div class="d-flex justify-content-end mb-3">
+                        <a href="/control-budget/individual_update_page/{{ $selectedMonth }}/{{ $selectedYear }}"
+                            class="btn btn-primary mx-1">Individual Update</a>
+                        <a href="" class="btn btn-secondary mx-1">Mass Update</a>
+                    </div>
                 </div>
                 <div class="card-body table-responsive p-0" style="box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);">
                     <table class="table table-hover table-striped text-nowrap">
@@ -62,7 +66,7 @@
                                 <th>DESCRIPTION</th>
                                 <th>ACTUAL</th>
                                 <th>PLAN</th>
-                                <th>VARIANCE</th>
+                                <th>VAR</th>
                                 <th>PERCENTAGE</th>
                                 <th>REMARKS</th>
                             </tr>

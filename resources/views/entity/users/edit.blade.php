@@ -98,6 +98,29 @@
                                 <textarea class="form-control form-control-m" rows="5" placeholder="Address" name="address">{{ $user->address }}</textarea>
                             </div>
                         </div>
+
+                        <div class="col-md-12">
+                            <!-- Access Fields with Border for Edit Page -->
+                            <div class="form-group p-3" style="border: 1px solid #ddd; border-radius: 8px;">
+                                <label>Feature Access <span class="text-danger">*</span></label>
+                                <div class="icheck-primary">
+                                    <input type="checkbox" class="form-check-input" id="access_workinglist" name="access_worklist"
+                                        {{ $user->access_worklist == 1 ? 'checked' : '' }}>
+                                    <label class="form-check-label" for="access_workinglist">Working List</label>
+                                </div>
+                                <div class="icheck-primary">
+                                    <input type="checkbox" class="form-check-input" id="access_control_budget" name="access_control_budget"
+                                        {{ $user->access_control_budget == 1 ? 'checked' : '' }}>
+                                    <label class="form-check-label" for="access_control_budget">Control Budget</label>
+                                </div>
+                                <div class="icheck-primary">
+                                    <input type="checkbox" class="form-check-input" id="access_payment_schedule" name="access_payment_schedule"
+                                        {{ $user->access_payment_schedule == 1 ? 'checked' : '' }}>
+                                    <label class="form-check-label" for="access_payment_schedule">Payment Schedule</label>
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
                     <!-- Buttons Section -->
                     <div class="d-flex justify-content-between mt-4 align-items-center">

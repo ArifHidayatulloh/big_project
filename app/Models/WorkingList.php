@@ -59,4 +59,18 @@ class WorkingList extends Model
     {
         return $this->hasMany(CommentDephead::class);
     }
+
+    public function updateStatusIfNeeded()
+    {
+        // Cek apakah deadline sudah terlewati dan complete_date masih kosong
+        if ($this->status === 'On Progress' && $this->deadline < now() && !$this->complete_date) {
+            // Update status menjadi Outstanding
+            $this->status = 'Outstanding';
+
+            // Update status comment menjadi Uncompleted
+            $this->status_comment = 'uncompleted'; // Asumsikan Anda memiliki field comment_status
+            $this->score = 50; // Asumsikan Anda memiliki field comment_status
+            $this->save();
+        }
+    }
 }

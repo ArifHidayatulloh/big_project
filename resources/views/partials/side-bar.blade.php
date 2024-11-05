@@ -56,7 +56,7 @@
 
 
                 {{-- Working List --}}
-                <li class="nav-header">Working List</li>
+                <li class="nav-header">WORKING LIST</li>
 
                 <li class="nav-item">
                     <a href="/working-list" class="nav-link {{ request()->is('working-list*') ? 'bg-primary' : '' }}">
@@ -84,7 +84,7 @@
                 {{-- End of Working List --}}
 
                 {{-- Control Budget --}}
-                <li class="nav-header">Control Budget</li>
+                <li class="nav-header">COST REVIEW</li>
 
                 <li class="nav-item">
                     <a href="/control-budget"
@@ -92,6 +92,17 @@
                         <i class="nav-icon fas fa-money-bill-wave"></i>
                         <p>
                             Departments Budgets
+                        </p>
+                    </a>
+                </li>
+                <li class="nav-header">KKI MART</li>
+                <!-- Add Payment Schedule Menu Item -->
+                <li class="nav-item">
+                    <a href="/payment_schedule"
+                        class="nav-link {{ request()->is('payment_schedule*') ? 'bg-primary' : '' }}">
+                        <i class="nav-icon fas fa-calendar-alt"></i>
+                        <p>
+                            Payment Schedule
                         </p>
                     </a>
                 </li>

@@ -18,4 +18,9 @@ class BudgetDescription extends Model
     public function monthly_budget(){
         return $this->hasMany(MonthlyBudget::class,'description_id');
     }
+
+    function monthlyBudgetPlanned(){
+        return $this->hasOne(MonthlyBudget::class,'description_id')
+        ->where('month', request('month'))->where('year', request('year'));
+    }
 }

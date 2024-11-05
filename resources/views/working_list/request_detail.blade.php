@@ -106,10 +106,6 @@
                             <a href="#" class="btn btn-danger" data-toggle="modal" data-target="#rejectModal">
                                 <i class="fas fa-thumbs-down"></i> Reject
                             </a>
-                            <a href="" class="btn btn-danger"
-                                onclick="return confirm('Are you sure you want to delete this item?')">
-                                <i class="fas fa-thumbs-down"></i> Reject
-                            </a>
                         </div>
                     </div>
 
@@ -151,8 +147,8 @@
                                     <label for="status_comment">Status Comment <span class="text-danger">*</span></label>
                                     <select class="form-control" id="status_comment" name="status_comment" required>
                                         <option value="" disabled selected>Select status comment</option>
-                                        <option value="finish">Finish</option>
-                                        <option value="unfinish">Unfinish</option>
+                                        <option value="completed">Completed</option>
+                                        <option value="uncompleted">Uncompleted</option>
                                     </select>
                                 </div>
                             </div>

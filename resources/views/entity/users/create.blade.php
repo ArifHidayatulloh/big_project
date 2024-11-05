@@ -20,7 +20,8 @@
     <!-- /.content-header -->
     <section class="content pb-2">
         <div class="card shadow-sm" style="border-radius: 15px;">
-            <div class="card-header text-center" style="background: linear-gradient(to right, #007bff, #00c6ff); color: white; color: white; border-radius: 15px 15px 0 0;">
+            <div class="card-header text-center"
+                style="background: linear-gradient(to right, #007bff, #00c6ff); color: white; border-radius: 15px 15px 0 0;">
                 <h4 class="m-0">New Employee</h4>
             </div>
             <form action="/user/store" method="post">
@@ -31,23 +32,27 @@
                         <div class="col-md-12">
                             <div class="form-group">
                                 <label for="name">Name <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control form-control-m" id="name" name="name" required>
+                                <input type="text" class="form-control form-control-m" id="name" name="name"
+                                    required>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="nik">NIK <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control form-control-m" id="nik" name="nik" required>
+                                <input type="text" class="form-control form-control-m" id="nik" name="nik"
+                                    required>
                             </div>
                             <div class="form-group">
                                 <label for="gender">Gender <span class="text-danger">*</span></label>
                                 <div class="d-flex" style="gap: 10px; margin-left:30px; margin-top:5px;">
                                     <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="gender" value="L" required>
+                                        <input class="form-check-input" type="radio" name="gender" value="L"
+                                            required>
                                         <label class="form-check-label">Male</label>
                                     </div>
                                     <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="gender" value="P" required>
+                                        <input class="form-check-input" type="radio" name="gender" value="P"
+                                            required>
                                         <label class="form-check-label">Female</label>
                                     </div>
                                 </div>
@@ -62,7 +67,8 @@
                             </div>
                             <div class="form-group">
                                 <label for="password">Password <span class="text-danger">*</span></label>
-                                <input type="password" class="form-control form-control-m" id="password" name="password" required>
+                                <input type="password" class="form-control form-control-m" id="password" name="password"
+                                    required>
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -96,8 +102,29 @@
                                 <label for="address">Address</label>
                                 <textarea class="form-control form-control-m" rows="5" placeholder="Address" name="address"></textarea>
                             </div>
-
                         </div>
+                        <div class="col-md-12">
+                            <!-- Access Fields with Border -->
+                            <div class="form-group p-3" style="border: 1px solid #ddd; border-radius: 8px;">
+                                <label>Feature Access <span class="text-danger">*</span></label>
+                                <div class="icheck-primary">
+                                    <input type="checkbox" class="form-check-input" id="access_workinglist"
+                                        name="access_worklist">
+                                    <label class="form-check-label" for="access_workinglist">Working List</label>
+                                </div>
+                                <div class="icheck-primary">
+                                    <input type="checkbox" class="form-check-input" id="access_control_budget"
+                                        name="access_control_budget">
+                                    <label class="form-check-label" for="access_control_budget">Control Budget</label>
+                                </div>
+                                <div class="icheck-primary">
+                                    <input type="checkbox" class="form-check-input" id="access_payment_schedule"
+                                        name="access_payment_schedule">
+                                    <label class="form-check-label" for="access_payment_schedule">Payment Schedule</label>
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
                     <!-- Buttons Section -->
                     <div class="d-flex justify-content-between mt-4 align-items-center">
@@ -112,6 +139,4 @@
             </form>
         </div>
     </section>
-
-
 @endsection
