@@ -1,123 +1,118 @@
-<!-- Main Sidebar Container -->
 <aside class="main-sidebar sidebar-dark-primary elevation-4">
     <!-- Brand Logo -->
-    <a href="" class="brand-link text-center">
-        <span class="brand-text font-weight-light">Koperasi Indocement</span>
+    <a href="#" class="brand-link">
+        <img src="{{ asset('assets/images/LOGO_KKI.png') }}" alt="AdminLTE Logo"
+            class="brand-image img-circle elevation-3">
+        <span class="brand-text font-weight-bold ml-2">Kopkar Indcement</span>
     </a>
 
     <!-- Sidebar -->
     <div class="sidebar">
         <!-- Sidebar Menu -->
         <nav class="mt-2">
-            <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+            <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu"
+                data-accordion="false">
+
                 <!-- Dashboard -->
-                <li class="nav-item menu">
-                    <a href="/dashboard" class="nav-link {{ request()->is('dashboard') ? 'bg-primary' : '' }}">
+                <li class="nav-item">
+                    <a href="/" class="nav-link {{ request()->is('/') ? 'active' : '' }}">
                         <i class="nav-icon fas fa-tachometer-alt"></i>
-                        <p>
-                            Dashboard
-                        </p>
+                        <p>Dashboard</p>
                     </a>
                 </li>
 
                 @if (Auth::user()->role == 1 || Auth::user()->role == 2)
-                    {{-- Entity --}}
                     <li class="nav-header">ENTITY</li>
-
                     <li class="nav-item">
-                        <a href="/user" class="nav-link {{ request()->is('user*') ? 'bg-primary' : '' }}">
+                        <a href="/user" class="nav-link {{ request()->is('user*') ? 'active' : '' }}">
                             <i class="nav-icon fas fa-users"></i>
-                            <p>
-                                Employess
-                            </p>
+                            <p>Employees</p>
                         </a>
                     </li>
 
                     <li class="nav-item">
-                        <a href="/department" class="nav-link {{ request()->is('department*') ? 'bg-primary' : '' }}">
+                        <a href="/department" class="nav-link {{ request()->is('department*') ? 'active' : '' }}">
                             <i class="nav-icon fas fa-building"></i>
-                            <p>
-                                Departments
-                            </p>
+                            <p>Departments</p>
                         </a>
                     </li>
 
                     <li class="nav-item">
-                        <a href="/depuser" class="nav-link {{ request()->is('depuser*') ? 'bg-primary' : '' }}">
+                        <a href="/depuser" class="nav-link {{ request()->is('depuser*') ? 'active' : '' }}">
                             <i class="nav-icon fas fa-landmark"></i>
-                            <p>
-                                Departments Employees
-                            </p>
+                            <p>Departments Employees</p>
                         </a>
                     </li>
-
-                    {{-- End of Entity --}}
                 @endif
 
-
-                {{-- Working List --}}
-                <li class="nav-header">WORKING LIST</li>
-
-                <li class="nav-item">
-                    <a href="/working-list" class="nav-link {{ request()->is('working-list*') ? 'bg-primary' : '' }}">
-                        <i class="nav-icon fas fa-clipboard"></i>
-                        <p>
-                            Working Lists
-                        </p>
-                    </a>
-                </li>
 
                 @php
                     use App\Models\WorkingList;
                     $count_request = WorkingList::where('status', 'Requested')->count();
                 @endphp
-                <li class="nav-item">
-                    <a href="/need_approval" class="nav-link {{ request()->is('need_approval*') ? 'bg-primary' : '' }}">
-                        <i class="nav-icon fas fa-clock"></i>
-                        <p>
-                            Need Approval
-                            <span class="badge badge-warning right">{{ $count_request }}</span>
-                        </p>
-                    </a>
-                </li>
 
-                {{-- End of Working List --}}
+                @if (Auth::user()->access_worklist == true)
+                    <!-- Working List Section -->
+                    <li class="nav-header">WORKING LIST</li>
+                    <li
+                        class="nav-item {{ request()->is('working-list*') || request()->is('need_approval*') ? 'menu-is-opening menu-open' : '' }}">
+                        <a href="#"
+                            class="nav-link {{ request()->is('working-list*') || request()->is('need_approval*') ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-clipboard-list"></i>
+                            <p>Working Lists <i class="right fas fa-angle-left"></i></p>
+                        </a>
+                        <ul class="nav nav-treeview">
+                            <li class="nav-item">
+                                <a href="/working-list"
+                                    class="nav-link {{ request()->is('working-list') ? 'active' : '' }}">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <p>Resume</p>
+                                </a>
+                            </li>
 
-                {{-- Control Budget --}}
-                <li class="nav-header">COST REVIEW</li>
+                            <li class="nav-item">
+                                <a href="/need_approval"
+                                    class="nav-link {{ request()->is('need_approval') ? 'active' : '' }}">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <p>Need Approval <span class="badge badge-danger">{{ $count_request }}</span></p>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                @endif
 
+                @if (Auth::user()->access_control_budget == true)
+                    <!-- Cost Review Section -->
+                    <li class="nav-header">COST REVIEW</li>
+                    <li class="nav-item">
+                        <a href="/control-budget"
+                            class="nav-link {{ request()->is('control-budget*') ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-money-bill-wave"></i>
+                            <p>Departments Budgets</p>
+                        </a>
+                    </li>
+                @endif
+
+                @if (Auth::user()->access_control_budget == true)
+                    <!-- KKI Mart Section -->
+                    <li class="nav-header">KKI MART</li>
+                    <li class="nav-item">
+                        <a href="/payment_schedule"
+                            class="nav-link {{ request()->is('payment_schedule*') ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-calendar-alt"></i>
+                            <p>Payment Schedule</p>
+                        </a>
+                    </li>
+                @endif
+
+                <!-- Logout -->
                 <li class="nav-item">
-                    <a href="/control-budget"
-                        class="nav-link {{ request()->is('control-budget*') ? 'bg-primary' : '' }}">
-                        <i class="nav-icon fas fa-money-bill-wave"></i>
-                        <p>
-                            Departments Budgets
-                        </p>
-                    </a>
-                </li>
-                <li class="nav-header">KKI MART</li>
-                <!-- Add Payment Schedule Menu Item -->
-                <li class="nav-item">
-                    <a href="/payment_schedule"
-                        class="nav-link {{ request()->is('payment_schedule*') ? 'bg-primary' : '' }}">
-                        <i class="nav-icon fas fa-calendar-alt"></i>
-                        <p>
-                            Payment Schedule
-                        </p>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="/logout" class="nav-link">
+                    <a href="/logout" class="nav-link logout-link">
                         <i class="nav-icon fas fa-power-off"></i>
-                        <p>
-                            Logout
-                        </p>
+                        <p>Logout</p>
                     </a>
                 </li>
-                {{-- End of Control Budget --}}
             </ul>
         </nav>
-        <!-- /.sidebar-menu -->
     </div>
-    <!-- /.sidebar -->
 </aside>

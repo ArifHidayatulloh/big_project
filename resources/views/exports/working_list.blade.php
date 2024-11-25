@@ -43,7 +43,7 @@
                     {{ \Carbon\Carbon::parse($workingList->deadline)->format('d M Y') }}
                     <br>
                     <i class="fas fa-clock"></i>
-                    {{ \Carbon\Carbon::parse($workingList->deadline)->format('g:i A') }}
+                    {{ \Carbon\Carbon::parse($workingList->deadline)->format('H:i') }}
                 </td>
 
                 {{-- Tambahkan class untuk status --}}
@@ -60,7 +60,7 @@
                     @if ($workingList->complete_date)
                         {{ \Carbon\Carbon::parse($workingList->complete_date)->format('d M Y') }}
                         <br>
-                        {{ \Carbon\Carbon::parse($workingList->complete_date)->format('g:i A') }}
+                        {{ \Carbon\Carbon::parse($workingList->complete_date)->format('H:i') }}
                     @else
                         -
                     @endif
@@ -80,7 +80,7 @@
                 <td rowspan="{{ $totalRows }}" style="text-align: center; vertical-align: middle;">
                     {{ \Carbon\Carbon::parse($workingList->created_at)->format('d M Y') }}
                     <br>
-                    {{ \Carbon\Carbon::parse($workingList->created_at)->format('g:i A') }}
+                    {{ \Carbon\Carbon::parse($workingList->created_at)->format('H:i') }}
                 </td>
                 <td rowspan="{{ $totalRows }}" style="text-align: center; vertical-align: middle;">{{ $workingList->creator->name }}</td>
             </tr>

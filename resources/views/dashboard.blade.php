@@ -20,65 +20,220 @@
     <!-- /.content-header -->
 
     <!-- Main content -->
-    <section class="content">
+    <section class="content pb-4">
         <div class="container-fluid">
-            <!-- Small boxes (Stat box) -->
-            <div class="row">
-                <!-- Small Box -->
-                <div class="col-lg-3 col-6">
-                    <div class="small-box bg-info">
-                        <div class="inner">
-                            <h3>12</h3>
-                            <p>Departments</p>
+            <div class="ion-group">
+                <!-- Small boxes (Stat box) -->
+                <div class="ion-group-title">ENTITY</div>
+                <div class="row load-animation">
+                    <!-- Small Box -->
+                    <div class="col-lg-4 col-12">
+                        <div class="small-box bg-info">
+                            <div class="inner">
+                                <h3>{{ $departments->count() }}</h3>
+                                <p>Departments</p>
+                            </div>
+                            <div class="icon">
+                                <i class="ion ion-briefcase"></i>
+                            </div>
+                            <a href="/department" class="small-box-footer">More info <i
+                                    class="fas fa-arrow-circle-right"></i></a>
                         </div>
-                        <div class="icon">
-                            <i class="ion ion-briefcase"></i>
+                    </div>
+                    <div class="col-lg-4 col-12">
+                        <div class="small-box bg-warning">
+                            <div class="inner">
+                                <h3>{{ $employees->count() - 1 }}</h3>
+                                <p>Employees</p>
+                            </div>
+                            <div class="icon">
+                                <i class="ion ion-person-add"></i>
+                            </div>
+                            <a href="/user" class="small-box-footer">More info <i
+                                    class="fas fa-arrow-circle-right"></i></a>
                         </div>
-                        <a href="/department" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+                    </div>
+                    <div class="col-lg-4 col-12">
+                        <div class="small-box bg-success">
+                            <div class="inner">
+                                <h3>{{ $costReviews->count() }}</h3>
+                                <p>Cost Review</p>
+                            </div>
+                            <div class="icon">
+                                <i class="ion ion-cash"></i>
+                            </div>
+                            <a href="/control-budget" class="small-box-footer">More Info <i
+                                    class="fas fa-arrow-circle-right"></i></a>
+                        </div>
                     </div>
                 </div>
-                <div class="col-lg-3 col-6">
-                    <div class="small-box bg-success">
-                        <div class="inner">
-                            <h3>75%</h3>
-                            <p>Task Completion</p>
+            </div>
+
+            <div class="ion-group">
+                <!-- Small boxes (Stat box) -->
+                <div class="ion-group-title">WORKING LISTS</div>
+                <div class="row load-animation">
+                    <!-- Small Box -->
+                    <div class="col-lg-3 col-6">
+                        <div class="small-box bg-info">
+                            <div class="inner">
+                                <h3>{{ $working_lists->count() }}</h3>
+                                <p>Working Lists</p>
+                            </div>
+                            <div class="icon">
+                                <i class="ion ion-clipboard"></i>
+                            </div>
+                            <a href="/working-list" class="small-box-footer">More info <i
+                                    class="fas fa-arrow-circle-right"></i></a>
                         </div>
-                        <div class="icon">
-                            <i class="ion ion-checkmark"></i>
-                        </div>
-                        <a href="#" class="small-box-footer">Details <i class="fas fa-arrow-circle-right"></i></a>
                     </div>
-                </div>
-                <div class="col-lg-3 col-6">
-                    <div class="small-box bg-warning">
-                        <div class="inner">
-                            <h3>44</h3>
-                            <p>Employees</p>
+                    <div class="col-lg-3 col-6">
+                        <div class="small-box bg-success">
+                            <div class="inner">
+                                <h3>{{ $working_lists->where('status', 'Done')->count() }}</h3>
+                                <p>Done</p>
+                            </div>
+                            <div class="icon">
+                                <i class="ion ion-checkmark"></i>
+                            </div>
+                            <a href="#" class="small-box-footer">More Info <i
+                                    class="fas fa-arrow-circle-right"></i></a>
                         </div>
-                        <div class="icon">
-                            <i class="ion ion-person-add"></i>
-                        </div>
-                        <a href="/user" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
                     </div>
-                </div>
-                <div class="col-lg-3 col-6">
-                    <div class="small-box bg-danger">
-                        <div class="inner">
-                            <h3>24</h3>
-                            <p>Pending Issues</p>
+                    <div class="col-lg-3 col-6">
+                        <div class="small-box bg-warning">
+                            <div class="inner">
+                                <h3>{{ $working_lists->where('status', '!=', 'Done')->where('status', '!=', 'Outstanding')->count() }}
+                                </h3>
+                                <p>On Progress</p>
+                            </div>
+                            <div class="icon">
+                                <i class="ion ion-layers"></i>
+                            </div>
+                            <a href="/user" class="small-box-footer">More info <i
+                                    class="fas fa-arrow-circle-right"></i></a>
                         </div>
-                        <div class="icon">
-                            <i class="ion ion-alert-circled"></i>
+                    </div>
+                    <div class="col-lg-3 col-6">
+                        <div class="small-box bg-danger">
+                            <div class="inner">
+                                <?php 
+                                    use  \App\Models\WorkingList;
+                                    
+                                    $outstanding = WorkingList::where('status','Outstanding')->count();
+                                ?>
+                                <h3>{{ $outstanding }}</h3>
+                                <p>Overdue</p>
+                            </div>
+                            <div class="icon">
+                                <i class="ion ion-alert-circled"></i>
+                            </div>
+                            <a href="#" class="small-box-footer">Details <i class="fas fa-arrow-circle-right"></i></a>
                         </div>
-                        <a href="#" class="small-box-footer">Details <i class="fas fa-arrow-circle-right"></i></a>
                     </div>
                 </div>
             </div>
 
             <!-- Profile Card -->
             <div class="row">
+                <div class="col-md-8">
+                    <div class="card announcement-card shadow-lg">
+                        <div class="card-header bg-warning text-white d-flex align-items-center">
+                            <i class="fas fa-bullhorn mr-2"></i> <!-- Ikon bullhorn untuk perhatian -->
+                            <div class="card-title font-weight-bold">
+                                Announcement
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            {{-- @if ()
+
+                            @else
+
+                            @endif --}}
+                            <p class="announcement-text bg-light p-3 border border-warning rounded text-sm">
+                                <strong>Pengumuman</strong>
+                            </p>
+                        </div>
+                        <div class="card-footer d-flex justify-content-end">
+                            <div class="announcement-info">
+                                <div class="who d-flex" style="gap:10px;">
+                                    <p class="mt-1">{{ Auth::user()->name }}</p>
+                                    <img class="img-circle img-sm"
+                                         src="{{ asset('assets/images/' . (Auth::user()->gender == 'L' ? 'male_icon.png' : 'female_icon.png')) }}"
+                                         alt="User Image">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+
+                    <div class="card card-info card-outline card-table load-animation">
+                        <div class="card-header">
+                            <h3 class="card-title text-bold">Active Working Lists Due in the Next 7 Days</h3>
+                        </div>
+                        <div class="card-body table-responsive p-0">
+                            <table class="table table-hover table-bordered text-sm pt-3">
+                                <thead class="text-center">
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Department</th>
+                                        <th>Working List</th>
+                                        <th>PIC</th>
+                                        <th>Deadline</th>
+                                        <th>Status</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="text-center">
+                                    @forelse ($workingLists as $task)
+                                        <tr>
+                                            <td>{{ $loop->iteration }}</td>
+                                            <td>{{ $task->department->name }}</td>
+                                            <td class="text-center working-list-col" title="{{ $task->name }}"
+                                                data-toggle="tooltip">{{ $task->name }}</td>
+                                            <td>{{ $task->picUser->name }}</td>
+                                            <td>
+                                                {{ \Carbon\Carbon::parse($task->deadline)->format('d M Y') }}
+                                                <br>
+                                                <i class="fas fa-clock"></i>
+                                                {{ \Carbon\Carbon::parse($task->deadline)->format('H:i') }}
+                                            </td>
+                                            <td>
+                                                @if ($task->status == 'Outstanding')
+                                                    <span class="badge badge-danger">Outstanding</span>
+                                                @elseif($task->status == 'On Progress')
+                                                    <span class="badge badge-warning">On Progress</span>
+                                                @elseif($task->status == 'Done')
+                                                    <span class="badge badge-success">Done</span>
+                                                @elseif($task->status == 'Requested')
+                                                    <span class="badge badge-info">Requested</span>
+                                                @else
+                                                    <span class="badge badge-danger">Rejected</span>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                <a href="/working-list/{{ $task->id }}"
+                                                    class="btn btn-sm btn-primary shadow-sm">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    @empty
+                                        <tr>
+                                            <td colspan="7">No Wori</td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+
+
+                <!-- Charts Section -->
                 <div class="col-md-4">
-                    <div class="card card-info card-outline">
+                    <div class="card card-info card-outline pb-3 load-animation">
                         <div class="card-body box-profile">
                             <div class="text-center">
                                 <img class="profile-user-img img-fluid img-circle"
@@ -115,160 +270,209 @@
                                     <b>Address</b> <a class="float-right">{{ Auth::user()->address }}</a>
                                 </li>
                                 <li class="list-group-item">
-                                    <b>Join Date</b> <a class="float-right">{{ Auth::user()->join_date ? \Carbon\Carbon::parse(Auth::user()->join_date)->format('d M Y')  : '' }}</a>
+                                    <b>Join Date</b> <a
+                                        class="float-right">{{ Auth::user()->join_date ? \Carbon\Carbon::parse(Auth::user()->join_date)->format('d M Y') : '' }}</a>
                                 </li>
                             </ul>
 
-                            <a href="#" class="btn btn-info btn-block"><b>Edit Profile</b></a>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Charts Section -->
-                <div class="col-md-8">
-                    <div class="card">
-                        <div class="card-header">
-                            <h3 class="card-title">Performance Overview</h3>
-                        </div>
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <canvas id="unitPerformanceChart" style="height: 200px;"></canvas>
-                                </div>
-                                <div class="col-md-6">
-                                    <canvas id="userPerformanceChart" style="height: 200px;"></canvas>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Recent Activity List -->
-                    <div class="card mt-4">
-                        <div class="card-header">
-                            <h3 class="card-title">Recent Activities</h3>
-                        </div>
-                        <div class="card-body p-0">
-                            <ul class="products-list product-list-in-card pl-2 pr-2">
-                                <li class="item">
-                                    <div class="product-info">
-                                        <a href="#" class="product-title">Employee of the Month
-                                            <span class="badge badge-success float-right">Achievement</span></a>
-                                        <span class="product-description">
-                                            Awarded to {{ Auth::user()->name }}
-                                        </span>
-                                    </div>
-                                </li>
-                                <li class="item">
-                                    <div class="product-info">
-                                        <a href="#" class="product-title">Department Goal Met
-                                            <span class="badge badge-info float-right">Milestone</span></a>
-                                        <span class="product-description">
-                                            Sales target achieved 80%
-                                        </span>
-                                    </div>
-                                </li>
-                            </ul>
+                            <a href="#" class="btn btn-info btn-block" data-toggle="modal"
+                                data-target="#editProfileModal{{ Auth::user()->id }}"><b>Edit Profile</b></a>
                         </div>
                     </div>
                 </div>
             </div>
+
+            <!-- Table to display tasks -->
+
         </div>
     </section>
+
+    {{-- Modal Edit Profil --}}
+    <div class="modal fade" id="editProfileModal{{ Auth::user()->id }}" tabindex="-1" role="dialog"
+        aria-labelledby="editProfileModal{{ Auth::user()->id }}" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content" style="border-radius: 10px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);">
+                <div class="modal-header"
+                    style="background: linear-gradient(to right, #007bff, #00c6ff); color: white; border-top-left-radius: 10px; border-top-right-radius: 10px;">
+                    <h5 class="modal-title" id="createProfileModalLabel">Edit Profile</h5>
+                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form action="/update_profile/{{ Auth::user()->id }}" method="POST">
+                    @csrf
+                    <div class="modal-body">
+                        <div class="row">
+                            <!-- Input Name in its own row -->
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="name">Name <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control form-control-m" id="name"
+                                        name="name" value="{{ Auth::user()->name }}" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="nik">NIK <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control form-control-m" id="nik"
+                                        name="nik" value="{{ Auth::user()->nik }}" required>
+                                </div>
+
+                                <div class="form-group pt-2">
+                                    <label for="phone">Phone</label>
+                                    <input type="tel" class="form-control form-control-m" id="phone"
+                                        name="phone" value="{{ Auth::user()->phone }}">
+                                </div>
+                                <div class="form-group">
+                                    <label for="email">Email</label>
+                                    <input type="email" class="form-control form-control-m" id="email"
+                                        name="email" value="{{ Auth::user()->email }}">
+                                </div>
+                                <div class="form-group">
+                                    <label for="password">Password <span class="text-danger">*</span></label>
+                                    <input type="password" class="form-control form-control-m" id="password"
+                                        name="password">
+                                    <small class="form-text text-muted">Leave blank if you don't want to change the
+                                        password</small>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="gender">Gender <span class="text-danger">*</span></label>
+                                    <div class="d-flex" style="gap: 10px; margin-left:30px; margin-top:5px;">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="gender" value="L"
+                                                {{ Auth::user()->gender == 'L' ? 'checked' : '' }} required>
+                                            <label class="form-check-label">Male</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="gender" value="P"
+                                                {{ Auth::user()->gender == 'P' ? 'checked' : '' }} required>
+                                            <label class="form-check-label">Female</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="join_date">Join Date</label>
+                                    <input type="date" class="form-control form-control-m" id="join_date"
+                                        name="join_date" value="{{ Auth::user()->join_date }}">
+                                </div>
+                                <div class="form-group">
+                                    <label for="address">Address</label>
+                                    <textarea class="form-control form-control-m" rows="5" placeholder="Address" name="address">{{ Auth::user()->address }}</textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer" style="border-top: 1px solid #e9ecef;">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal"
+                                style="border-radius: 20px; padding: 8px 16px;">Close</button>
+                            <button type="submit" class="btn btn-primary"
+                                style="border-radius: 20px; padding: 8px 16px;">Save Profile</button>
+                        </div>
+                </form>
+            </div>
+        </div>
+    </div>
 @endsection
 
 
 @section('styles')
     <style>
-        #unitPerformanceChart, #userPerformanceChart {
-    width: 100% !important;
-    height: 300px !important;
-}
+        .card-table {
+            width: 100% !important;
+            height: 230px !important;
+        }
+
+        .table {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+
+        .table th,
+        .table td {
+            vertical-align: middle;
+            text-align: center;
+        }
+
+        .table .working-list-col {
+            max-width: 200px;
+            /* Ganti dengan lebar maksimum yang diinginkan */
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .ion-group-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #007bff;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 5px;
+        }
+
+        .load-animation{
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        
+        .announcement-card {
+            border: 2px solid #ffc107;
+            animation: fadeIn 0.5s ease-in-out;
+            /* Animasi saat muncul */
+            position: relative;
+            overflow: hidden;
+        }
+
+        .announcement-card::before {
+            content: 'NEW!';
+            position: absolute;
+            top: 10px;
+            right: -40px;
+            background: #dc3545;
+            color: #fff;
+            font-size: 0.9em;
+            font-weight: bold;
+            padding: 4px 8px;
+            transform: rotate(45deg);
+            z-index: 1;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .announcement-text {
+            font-size: 1.1em;
+            color: #555;
+        }
+
+        .card-header.bg-warning {
+            background-color: #ffc107 !important;
+            color: #212529;
+        }
+
+        .who p {
+            font-size: 0.9em;
+            color: #555;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
     </style>
 @endsection
 
+
 @section('scripts')
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        // Data for Unit Performance
-        const unitLabels = {!! json_encode($unitPerformance->keys()) !!};
-        const unitData = {!! json_encode($unitPerformance) !!};
-
-        const unitChartData = {
-            labels: unitLabels,
-            datasets: [
-                {
-                    label: 'On Progress',
-                    data: unitLabels.map(unit => unitData[unit].find(status => status.status === 'On Progress')?.total || 0),
-                    backgroundColor: 'rgba(54, 162, 235, 0.6)',
-                },
-                {
-                    label: 'Done',
-                    data: unitLabels.map(unit => unitData[unit].find(status => status.status === 'Done')?.total || 0),
-                    backgroundColor: 'rgba(75, 192, 192, 0.6)',
-                },
-            ]
-        };
-
-        const unitPerformanceChart = new Chart(document.getElementById('unitPerformanceChart').getContext('2d'), {
-            type: 'doughnut', // Tipe chart pie
-            data: {
-                labels: unitLabels,
-                datasets: [{
-                    data: [
-                        ...unitLabels.map(unit => unitData[unit].find(status => status.status === 'On Progress')?.total || 0),
-                        ...unitLabels.map(unit => unitData[unit].find(status => status.status === 'Done')?.total || 0)
-                    ],
-                    backgroundColor: [
-                        'rgba(54, 162, 235, 0.6)', // Warna untuk On Progress
-                        'rgba(75, 192, 192, 0.6)', // Warna untuk Done
-                    ],
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        position: 'top',
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(tooltipItem) {
-                                return tooltipItem.label + ': ' + tooltipItem.raw; // Menampilkan label dan data
-                            }
-                        }
-                    }
-                }
-            }
-        });
-
-        // Data for User Performance
-        const userLabels = {!! json_encode($userPerformance->keys()) !!};
-        const userData = {!! json_encode($userPerformance) !!};
-
-        const userChartData = {
-            labels: userLabels,
-            datasets: [
-                {
-                    label: 'On Progress',
-                    data: userLabels.map(user => userData[user].find(status => status.status === 'On Progress')?.total || 0),
-                    backgroundColor: 'rgba(255, 206, 86, 0.6)',
-                },
-                {
-                    label: 'Done',
-                    data: userLabels.map(user => userData[user].find(status => status.status === 'Done')?.total || 0),
-                    backgroundColor: 'rgba(153, 102, 255, 0.6)',
-                },
-            ]
-        };
-
-        const userPerformanceChart = new Chart(document.getElementById('userPerformanceChart').getContext('2d'), {
-            type: 'bar',
-            data: userChartData,
-            options: {
-                responsive: true,
-                scales: { x: { beginAtZero: true } }
-            }
+        $(function() {
+            // Initialize Bootstrap tooltip
+            $('[data-toggle="tooltip"]').tooltip();
         });
     </script>
 @endsection
-

@@ -16,7 +16,7 @@ class Authenticate
     public function handle($request, Closure $next)
     {
         if (!Auth::check()) {
-            return redirect('/')->withErrors(['error' => 'You must be logged in to access this page.'])->withInput();
+            return redirect('/loginPage')->withErrors(['error' => 'You must be logged in to access this page.'])->withInput();
         }
         return $next($request);
     }

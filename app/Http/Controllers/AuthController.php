@@ -2,9 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\CostReview;
+use App\Models\PaymentSchedule;
+use App\Models\Unit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
+use App\Models\WorkingList;
+use App\Models\User;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
@@ -22,7 +30,7 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials, $remember)) {
             // Jika login berhasil
-            return redirect()->intended('dashboard');
+            return redirect()->intended('/');
         }
 
         // Jika login gagal
@@ -42,21 +50,47 @@ class AuthController extends Controller
 
     function dashboard()
     {
-        // Ambil data untuk performance chart per unit
-        $unitPerformance = DB::table('working_lists')
-            ->select('unit_id', 'status', DB::raw('count(*) as total'))
-            ->groupBy('unit_id', 'status')
-            ->get()
-            ->groupBy('unit_id');
+        $departments = Unit::query();
+        $employees = User::query();
+        $working_lists = WorkingList::query();
+        $costReviews = CostReview::query();
+        $paymentSchedules = PaymentSchedule::query();
 
-        // Ambil data untuk performance chart per user
-        $userPerformance = DB::table('working_lists')
-            ->select('pic', 'status', DB::raw('count(*) as total'))
-            ->groupBy('pic', 'status')
-            ->get()
-            ->groupBy('pic');
+        $workingLists = WorkingList::where('status', '!=', 'Done')->where('status', '!=', 'Outstanding')->whereBetween('deadline', [now(), now()->addDays(7)])
+            ->orderBy('deadline', 'asc')->get();
 
+        return view('dashboard', compact('departments', 'employees', 'workingLists', 'costReviews', 'paymentSchedules', 'working_lists'));
+    }
 
-        return view('dashboard', compact('unitPerformance', 'userPerformance'));
+    function edit_profile(Request $request, $id)
+    {
+        try {
+            $user = User::findOrFail($id);
+
+            $data = $request->validate([
+                'nik' => ['required', Rule::unique('users')->ignore($user)],
+                'name' => ['required'],
+                'gender' => ['required'],
+                'phone' => ['nullable'],
+                'email' => ['nullable', Rule::unique('users')->ignore($user)],
+                'join_date' => ['nullable'],
+                'address' => ['nullable'],
+            ]);
+
+            // Hash password if provided
+            if (!empty($request->password)) {
+                $data['password'] = bcrypt($request->password);
+            }
+
+            $user->update($data);
+            return redirect('/dashboard')->with('success', 'Profile has been successfully updated.');
+        } catch (ValidationException $e) {
+            if ($e->validator->errors()->has('nik')) {
+                return back()->withErrors(['nik' => 'This NIK is already in use.'])->withInput();
+            }
+            if ($e->validator->errors()->has('email')) {
+                return back()->withErrors(['email' => 'This email is already in use.'])->withInput();
+            }
+        }
     }
 }

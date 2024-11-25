@@ -40,7 +40,7 @@
             /* Membuat lebar 100% untuk mobile responsiveness */
             max-width: 400px;
             /* Batas maksimal lebar */
-            
+
         }
 
 
@@ -68,7 +68,7 @@
                 <div class="login-card">
                     <!-- Logo -->
                     <div class="login-logo text-center">
-                        <img src="{{ asset('assets/images/logo_koperasi_indonesia.png') }}" alt="Logo Koperasi">
+                        <img src="{{ asset('assets/images/LOGO_KKI.png') }}" alt="Logo Koperasi">
                     </div>
 
                     <!-- Title -->
@@ -89,7 +89,7 @@
 
                         <div class="form-group">
                             <label for="password">{{ __('Password') }}</label>
-                            <input id="password" type="password" class="form-control @error('password') is-invalid @enderror" name="password" required autocomplete="current-password">
+                        <input id="password" type="password" class="form-control @error('password') is-invalid @enderror" name="password" required autocomplete="current-password">
                             @error('password')
                                 <span class="invalid-feedback" role="alert">
                                     <strong>{{ $message }}</strong>

@@ -8,86 +8,219 @@ use App\Mail\WorkingListRejected;
 use Illuminate\Http\Request;
 use App\Models\Unit;
 use App\Models\User;
+use App\Models\DepartmenUser;
 use App\Models\WorkingList;
 use App\Models\CommentDephead;
 use App\Models\UpdatePic;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 
 class WorkingListController extends Controller
 {
     public function index(Request $request)
     {
+        $role = Auth::user()->role;
+        $user_id = Auth::user()->id;
+        $unit_id = Auth::user()->unit_id;
+
         $query = WorkingList::query();
 
-        // Filter by Department
-        if ($request->has('department') && $request->department != '') {
-            $query->where('unit_id', $request->department);
-        }
+        // Filter berdasarkan role
+        $this->applyRoleFilter($query, $role, $user_id, $unit_id);
 
-        // Filter by PIC
-        if ($request->has('pic') && $request->pic != '') {
-            $query->where('pic', $request->pic);
-        }
+        // Tambahkan filter dari request
+        $this->applyRequestFilters($query, $request);
 
-        // Filter by Status (allowing multiple statuses)
-        if ($request->has('status') && is_array($request->status) && count($request->status) > 0) {
-            $query->whereIn('status', $request->status);
-        }
+        // Sorting
+        if ($request->has('sort_by') && $request->has('sort_order')) {
+            $sortBy = $request->get('sort_by');
+            $sortOrder = $request->get('sort_order') == 'asc' ? 'asc' : 'desc';
 
-        // Filter by Date Range (from_date and to_date)
-        if ($request->has('from_date') && $request->has('to_date')) {
-            $fromDate = $request->from_date;
-            $toDate = $request->to_date;
-            if ($fromDate && $toDate) {
-                $query->whereBetween('created_at', [$fromDate, $toDate]);
+            // Validasi dan sorting berdasarkan kolom yang diinginkan
+            if (in_array($sortBy, ['deadline', 'score'])) {
+                $query->orderBy($sortBy, $sortOrder);
             }
+        } else {
+            // Default sorting berdasarkan tanggal dibuat
+            $query->orderBy('created_at', 'desc');
         }
 
-        // Fetch working lists with related data
+        // Ambil data dengan relasi
         $workingLists = $query->with(['commentDepheads.updatePics', 'department', 'picUser'])
-            ->orderBy('created_at', 'desc')
             ->paginate(10)
             ->appends($request->all());
 
-        foreach ($workingLists as $list) {
-            // Panggil metode updateStatusIfNeeded untuk memperbarui status jika perlu
-            $list->updateStatusIfNeeded();
+        // Perbarui status komentar
+        $this->updateWorkingListStatuses($workingLists);
 
-            // Jika status_comment sudah diisi di database, gunakan itu
-            if (!empty($list->status_comment)) {
-                continue; // Skip iterasi ini, karena status sudah ada
-            }
-
-            $hasUpdates = false; // Flag untuk cek apakah ada update
-
-            // Iterasi melalui setiap CommentDephead
-            foreach ($list->commentDepheads as $comment) {
-                if ($comment->updatePics->isNotEmpty()) {
-                    $hasUpdates = true;
-                    break; // Jika sudah ada update, tidak perlu cek lebih lanjut
-                }
-            }
-
-            // Tentukan status berdasarkan flag $hasUpdates
-            if ($hasUpdates) {
-                $list->status_comment = 'In progress';
-            } else {
-                $list->status_comment = 'No start';
-            }
-
-            if ($list->status == 'Done') {
-                $list->status_comment = 'Completed';
-            }
-        }
-
-        // Fetch filter options
-        $departments = Unit::orderBy('name', 'asc')->get();
-        $pics = User::orderBy('name', 'asc')->get();
+        // Data dropdown untuk filter
+        $departments = $this->getAvailableDepartments($role, $user_id);
+        $pics = $this->getAvailablePics($role, $user_id, $departments);
 
         return view('working_list.index', compact('workingLists', 'departments', 'pics'));
     }
+
+
+    /**
+     * Terapkan filter berdasarkan role pengguna.
+     */
+    private function applyRoleFilter($query, $role, $user_id, $unit_id)
+    {
+        if ($role == 1 || $role == 3 || $role == 4) {
+            $departmentIds = DepartmenUser::where('user_id', $user_id)->pluck('unit_id');
+            if ($departmentIds->isNotEmpty()) {
+                $query->whereIn('unit_id', $departmentIds);
+            }
+            if ($role == 4 && $unit_id) {
+                $query->where('unit_id', $unit_id);
+            }
+        } elseif ($role == 5) {
+            $query->where('pic', $user_id);
+        }
+    }
+
+    /**
+     * Terapkan filter tambahan dari request.
+     */
+    private function applyRequestFilters($query, $request)
+    {
+        if ($request->filled('department')) {
+            $query->where('unit_id', $request->department);
+        }
+
+        if ($request->filled('pic')) {
+            $query->where('pic', $request->pic);
+        }
+
+        if ($request->filled('status')) {
+            $query->whereIn('status', $request->status);
+        }
+
+        if ($request->filled('from_date') && $request->filled('to_date')) {
+            $query->whereBetween('created_at', [$request->from_date, $request->to_date]);
+        }
+    }
+
+    /**
+     * Perbarui status komentar pada daftar kerja.
+     */
+    private function updateWorkingListStatuses($workingLists)
+    {
+        foreach ($workingLists as $list) {
+            // Jika status_comment sudah ada, lewati
+            if (!empty($list->status_comment)) {
+                continue;
+            }
+
+            // Tentukan status komentar berdasarkan kondisi
+            $list->status_comment = $this->determineStatusComment($list);
+        }
+    }
+
+    /**
+     * Tentukan status komentar berdasarkan kondisi.
+     */
+    private function determineStatusComment($list)
+    {
+        if ($list->status == 'Done') {
+            return 'Completed';
+        }
+
+        foreach ($list->commentDepheads as $comment) {
+            if ($comment->updatePics->isNotEmpty()) {
+                return 'In progress';
+            }
+        }
+
+        return 'No start';
+    }
+
+    /**
+     * Ambil daftar departemen yang tersedia untuk role tertentu.
+     */
+    private function getAvailableDepartments($role, $user_id)
+    {
+        if ($role == 1 || $role == 3 || $role == 4) {
+            $departmentIds = DepartmenUser::where('user_id', $user_id)->pluck('unit_id');
+            return Unit::whereIn('id', $departmentIds)->orderBy('name', 'asc')->get();
+        }
+
+        return Unit::orderBy('name', 'asc')->get();
+    }
+
+    /**
+     * Ambil daftar PIC yang tersedia untuk role tertentu.
+     */
+    private function getAvailablePics($role, $user_id, $departments)
+    {
+        if ($role == 4) { // Kepala Unit
+            $unitId = Auth::user()->unit_id;
+
+            if ($unitId) {
+                // Jika unit_id kepala unit tidak null, ambil user dengan role 5 dari unit yang sama
+                return User::where('unit_id', $unitId)
+                    ->where('role', 5)
+                    ->orderBy('name', 'asc')
+                    ->get();
+            } else {
+                // Jika unit_id kepala unit null, ambil data terkait departemen
+                $departmentIds = $departments->pluck('id');
+
+                // Ambil data user terkait dengan unit
+                $users = User::whereIn('unit_id', $departmentIds)
+                    ->where('role', '!=', 1) // Kecualikan user dengan role 1
+                    ->orderBy('name', 'asc')
+                    ->get();
+
+                // Ambil data dari DepartmenUser yang terkait dengan unit
+                $depUsers = DepartmenUser::whereIn('unit_id', $departmentIds)
+                    ->whereHas('user', function ($query) {
+                        $query->where('role', '!=', 1); // Kecualikan user dengan role 1
+                    })
+                    ->with('user')
+                    ->get()
+                    ->pluck('user');
+
+                // Gabungkan kedua koleksi
+                $pics = $users->merge($depUsers)->unique('id')->sortBy('name');
+
+                return $pics->values(); // Reset index setelah pengurutan
+            }
+        }
+
+        if ($role == 1 || $role == 3) { // Admin atau Manajer
+            $departmentIds = $departments->pluck('id');
+
+            // Ambil data user terkait dengan unit
+            $users = User::whereIn('unit_id', $departmentIds)
+                ->where('role', '!=', 1) // Kecualikan user dengan role 1
+                ->orderBy('name', 'asc')
+                ->get();
+
+            // Ambil data dari DepartmenUser yang terkait dengan unit
+            $depUsers = DepartmenUser::whereIn('unit_id', $departmentIds)
+                ->whereHas('user', function ($query) {
+                    $query->where('role', '!=', 1); // Kecualikan user dengan role 1
+                })
+                ->with('user')
+                ->get()
+                ->pluck('user');
+
+            // Gabungkan kedua koleksi
+            $pics = $users->merge($depUsers)->unique('id')->sortBy('name');
+
+            return $pics->values(); // Reset index setelah pengurutan
+        }
+
+        // Untuk role lainnya, tampilkan semua user kecuali role 1
+        return User::where('role', '!=', 1)
+            ->orderBy('name', 'asc')
+            ->get();
+    }
+
+
 
     function show($id)
     {
@@ -97,9 +230,45 @@ class WorkingListController extends Controller
 
     function create()
     {
+        $role = Auth::user()->role;
+        $user_id = Auth::user()->id;
+        $departments = $this->getAvailableDepartments($role, $user_id);
+
+        // Logika untuk mendapatkan daftar pengguna berdasarkan role
+        if ($role == 1) {
+            $departmentIds = $departments->pluck('id'); // Ambil ID departemen
+
+            // Ambil semua pengguna dengan unit_id yang sesuai dan bukan role 1
+            $pic = User::whereIn('unit_id', $departmentIds)
+                ->where('role', '!=', 1) // Kecualikan pengguna dengan role 1
+                ->orderBy('name', 'asc')
+                ->get();
+
+            // Ambil pengguna dari DepartmenUser dengan role bukan 1
+            $depUsers = DepartmenUser::whereIn('unit_id', $departmentIds)
+                ->whereHas('user', function ($query) {
+                    $query->where('role', '!=', 1); // Kecualikan user dengan role 1
+                })
+                ->with('user')
+                ->get()
+                ->pluck('user');
+
+            // Ambil pengguna dengan role = 2
+            $role_2 = User::where('role', 2)
+                ->where('name', '!=', 'ADMIN') // Pastikan bukan ADMIN
+                ->get();
+
+            // Gabungkan semua data
+            $users = $pic->merge($depUsers)->merge($role_2)->unique('id')->sortBy('name');
+        } else {
+            $users = User::where('role', '!=', 1) // Ambil semua pengguna kecuali role 1
+                ->orderBy('name', 'asc')
+                ->get();
+        }
+
         return view('working_list.create', [
-            'departments' => Unit::orderBy('name', 'asc')->get(),
-            'users' => User::orderBy('name', 'asc')->get(),
+            'departments' => $departments,
+            'users' => $users,
         ]);
     }
 

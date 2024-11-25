@@ -15,11 +15,13 @@ return new class extends Migration
     {
         Schema::create('payment_schedules', function (Blueprint $table) {
             $table->id();
+            $table->string('number_invoice')->unique();
             $table->string('supplier_name');
-            $table->decimal('payment_amount');
+            $table->decimal('payment_amount', 65,2);
             $table->timestamp('purchase_date');
             $table->timestamp('due_date');
-            $table->enum('status', ['Pending', 'Paid'])->default('Pending');
+            $table->enum('status', ['Unpaid', 'Paid'])->default('Unpaid');
+            $table->timestamp('paid_date')->nullable();
             $table->string('attachment')->nullable();
             $table->text('description')->nullable();
             $table->timestamps();

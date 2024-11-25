@@ -3,7 +3,7 @@
 @section('content')
     <!-- Preloader -->
     <div class="preloader flex-column justify-content-center align-items-center">
-        <img class="animation__shake" src="{{ asset('assets/images/logo_koperasi_indonesia.png') }}" alt="AdminLTELogo"
+        <img class="animation__shake" src="{{ asset('assets/images/LOGO_KKI.png') }}" alt="AdminLTELogo"
             height="60" width="60">
     </div>
 
@@ -46,8 +46,8 @@
     <section class="content">
         <div class="card shadow-sm" style="border-radius: 15px;">
             <div class="card-body table-responsive p-0" style="box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15); border-radius: 10px;">
-                <table class="table table-hover table-striped text-nowrap">
-                    <thead style="background: linear-gradient(to right, #007bff, #00c6ff); color: white;">
+                <table class="table table-hover table-bordered text-nowrap text-sm">
+                    <thead style="background: #007bff; color: white;">
                         <tr class="text-center">
                             <th style="border-top-left-radius: 10px;">#</th>
                             <th class="text-center">Department</th>
@@ -77,7 +77,7 @@
                                 <td style="text-align: center">
                                     {{ \Carbon\Carbon::parse($item->deadline)->format('d M Y') }}
                                     <br>
-                                    <i class="fas fa-clock"></i> {{ \Carbon\Carbon::parse($item->deadline)->format('g:i A') }}
+                                    <i class="fas fa-clock"></i> {{ \Carbon\Carbon::parse($item->deadline)->format('H:i') }}
                                 </td>
                                 <td>
                                     @if ($item->status == 'Outstanding')
@@ -95,7 +95,7 @@
                                 <td>
                                     {{ \Carbon\Carbon::parse($item->request_at)->format('d M Y') }}
                                     <br>
-                                    <i class="fas fa-clock"></i> {{ \Carbon\Carbon::parse($item->request_at)->format('g:i A') }}
+                                    <i class="fas fa-clock"></i> {{ \Carbon\Carbon::parse($item->request_at)->format('H:i') }}
                                 </td>
                                 <td>
                                     <a href="/need_approval/{{ $item->id }}" class="btn btn-sm btn-primary shadow-sm">

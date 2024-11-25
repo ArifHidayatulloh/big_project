@@ -12,7 +12,7 @@
                         <p class="text-center mb-0 text-white">
                             {{ \Carbon\Carbon::parse($item->created_at)->format('d M Y') }}</p>
                         <p class="text-center mb-0 text-white"><i class="fas fa-clock"></i>
-                            {{ \Carbon\Carbon::parse($item->created_at)->format('g:i A') }}</p>
+                            {{ \Carbon\Carbon::parse($item->created_at)->format('H:i') }}</p>
                     </div>
 
                     <div class="section-details py-4">
@@ -29,7 +29,7 @@
                             <div class="col-lg-3 col-md-6 col-12 mb-4">
                                 <div class="detail-box p-3 rounded bg-white shadow-sm">
                                     <strong>Deadline</strong>
-                                    <p>{{ \Carbon\Carbon::parse($item->deadline)->format('d M Y, g:i A') }}</p>
+                                    <p>{{ \Carbon\Carbon::parse($item->deadline)->format('d M Y, H:i') }}</p>
                                 </div>
                             </div>
 
@@ -54,7 +54,7 @@
                                 <div class="detail-box p-3 rounded bg-white shadow-sm">
                                     <strong>Complete Date</strong>
                                     @if ($item->complete_date)
-                                        <p>{{ \Carbon\Carbon::parse($item->complete_date)->format('d M Y, g:i A') }}</p>
+                                        <p>{{ \Carbon\Carbon::parse($item->complete_date)->format('d M Y, H:i') }}</p>
                                     @else
                                         <p>No completion date</p>
                                     @endif
@@ -107,7 +107,7 @@
                                                                 <span class="text-sm">Update by:
                                                                     {{ $updatePic->updator->name }}</span><br>
                                                                 <span
-                                                                    class="text-sm">{{ \Carbon\Carbon::parse($updatePic->updated_at)->format('d M Y, g:i A') }}</span>
+                                                                    class="text-sm">{{ \Carbon\Carbon::parse($updatePic->updated_at)->format('d M Y, H:i') }}</span>
                                                             </div>
                                                         </div>
 

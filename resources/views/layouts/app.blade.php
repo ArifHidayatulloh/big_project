@@ -36,25 +36,11 @@
 
     {{-- ---------- End of Admin LTE -------- --}}
 
-    <link rel="shortcut icon" href="{{ asset('assets/images/logo_koperasi_indonesia.png') }}" type="image/x-icon">
+    <link rel="shortcut icon" href="{{ asset('assets/images/LOGO_KKI.png') }}" type="image/x-icon">
     <!-- Select2 CSS -->
 
 
     <style>
-        /* .pagination .page-link {
-            color: black; */
-        /* Warna hitam untuk halaman yang belum aktif */
-        /* } */
-
-        /* .pagination .page-item.active .page-link {
-            background-color: #6c757d; */
-        /* bg-secondary */
-        /* border-color: #6c757d; */
-        /* Sesuaikan border color */
-        /* color: white; */
-        /* Agar teks lebih jelas */
-        /* } */
-
         .table-hover tbody tr:hover {
             background-color: #f0f8ff;
             /* Warna hover pada baris */

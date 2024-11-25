@@ -63,95 +63,95 @@
         </div>
     </section>
 @endsection
-    @section('styles')
-        <style>
-            #user_dropdown {
-                position: absolute;
-                z-index: 1000;
-                /* Pastikan dropdown di atas elemen lain */
-                width: calc(100% - 1rem);
-                /* Sesuaikan dengan lebar input */
-                max-height: 200px;
-                /* Batas tinggi dropdown */
-                overflow-y: auto;
-                /* Scroll jika terlalu banyak item */
-                background-color: white;
-                /* Pastikan latar belakang dropdown putih */
-                border: 1px solid #ced4da;
-                /* Tambahkan border untuk dropdown */
-                border-radius: 0.25rem;
-                /* Tambahkan border-radius untuk dropdown */
-                display: none;
-                /* Sembunyikan dropdown secara default */
-                top: calc(100% + 0.5rem);
-                /* Menempatkan dropdown tepat di bawah input */
-                left: 0;
-                /* Mengatur posisi dropdown agar sejajar dengan input */
-            }
-        </style>
-    @endsection
+@section('styles')
+    <style>
+        #user_dropdown {
+            position: absolute;
+            z-index: 1000;
+            /* Pastikan dropdown di atas elemen lain */
+            width: calc(100% - 1rem);
+            /* Sesuaikan dengan lebar input */
+            max-height: 200px;
+            /* Batas tinggi dropdown */
+            overflow-y: auto;
+            /* Scroll jika terlalu banyak item */
+            background-color: white;
+            /* Pastikan latar belakang dropdown putih */
+            border: 1px solid #ced4da;
+            /* Tambahkan border untuk dropdown */
+            border-radius: 0.25rem;
+            /* Tambahkan border-radius untuk dropdown */
+            display: none;
+            /* Sembunyikan dropdown secara default */
+            top: calc(100% + 0.5rem);
+            /* Menempatkan dropdown tepat di bawah input */
+            left: 0;
+            /* Mengatur posisi dropdown agar sejajar dengan input */
+        }
+    </style>
+@endsection
 
-    @section('scripts')
-        <script>
-            $(document).ready(function() {
-                $('#user_search').on('keyup', function() {
-                    let query = $(this).val();
+@section('scripts')
+    <script>
+        $(document).ready(function() {
+            $('#user_search').on('keyup', function() {
+                let query = $(this).val();
 
-                    if (query.length > 0) {
-                        $.ajax({
-                            url: '/search-user',
-                            method: 'GET',
-                            data: {
-                                term: query
-                            },
-                            success: function(data) {
-                                $('#user_dropdown').empty();
+                if (query.length > 0) {
+                    $.ajax({
+                        url: '/search-user',
+                        method: 'GET',
+                        data: {
+                            term: query
+                        },
+                        success: function(data) {
+                            $('#user_dropdown').empty();
 
-                                if (data.length > 0) {
-                                    data.forEach(function(user) {
-                                        $('#user_dropdown').append(
-                                            '<a href="#" class="dropdown-item" data-id="' +
-                                            user.id + '">' + user.name + '</a>'
-                                        );
-                                    });
-                                    $('#user_dropdown').show(); // Tampilkan dropdown
-                                } else {
+                            if (data.length > 0) {
+                                data.forEach(function(user) {
                                     $('#user_dropdown').append(
-                                        '<a href="#" class="dropdown-item disabled">No users found</a>'
+                                        '<a href="#" class="dropdown-item" data-id="' +
+                                        user.id + '">' + user.name + '</a>'
                                     );
-                                    $('#user_dropdown').show();
-                                }
+                                });
+                                $('#user_dropdown').show(); // Tampilkan dropdown
+                            } else {
+                                $('#user_dropdown').append(
+                                    '<a href="#" class="dropdown-item disabled">No users found</a>'
+                                );
+                                $('#user_dropdown').show();
                             }
-                        });
-                    } else {
-                        $('#user_dropdown').hide(); // Sembunyikan dropdown jika input kosong
-                    }
-                });
-
-                $(document).on('click', '.dropdown-item', function(e) {
-                    e.preventDefault();
-                    let userName = $(this).text();
-                    let userId = $(this).data('id');
-
-                    $('#user_search').val(userName);
-                    $('#user_id').remove();
-
-                    $('<input>').attr({
-                        type: 'hidden',
-                        id: 'user_id',
-                        name: 'user_id',
-                        value: userId
-                    }).appendTo('form');
-
-                    $('#user_dropdown').hide(); // Sembunyikan dropdown setelah memilih
-                });
-
-                // Sembunyikan dropdown jika klik di luar dropdown
-                $(document).on('click', function(e) {
-                    if (!$(e.target).closest('#user_search, #user_dropdown').length) {
-                        $('#user_dropdown').hide();
-                    }
-                });
+                        }
+                    });
+                } else {
+                    $('#user_dropdown').hide(); // Sembunyikan dropdown jika input kosong
+                }
             });
-        </script>
-    @endsection
+
+            $(document).on('click', '.dropdown-item', function(e) {
+                e.preventDefault();
+                let userName = $(this).text();
+                let userId = $(this).data('id');
+
+                $('#user_search').val(userName);
+                $('#user_id').remove();
+
+                $('<input>').attr({
+                    type: 'hidden',
+                    id: 'user_id',
+                    name: 'user_id',
+                    value: userId
+                }).appendTo('form');
+
+                $('#user_dropdown').hide(); // Sembunyikan dropdown setelah memilih
+            });
+
+            // Sembunyikan dropdown jika klik di luar dropdown
+            $(document).on('click', function(e) {
+                if (!$(e.target).closest('#user_search, #user_dropdown').length) {
+                    $('#user_dropdown').hide();
+                }
+            });
+        });
+    </script>
+@endsection

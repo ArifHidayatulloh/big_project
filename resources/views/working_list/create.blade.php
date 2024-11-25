@@ -55,12 +55,19 @@
                         <div class="col-md-12">
                             <div class="form-group">
                                 <label for="pic">PIC <span class="text-danger">*</span></label>
+                                @if (Auth::user()->role == 2)
+                                <input type="text" class="form-control" id="user_search" name="pic"
+                                    placeholder="Search PIC..." autocomplete="off">
+                                <div id="user_dropdown" class="dropdown-menu" style="display: none;"></div>                                    
+                                @else
                                 <select name="pic" id="pic" class="custom-select form-control-m" required>
                                     <option disabled selected>Select PIC</option>
                                     @foreach ($users as $user)
                                         <option value="{{ $user->id }}">{{ $user->name }}</option>
                                     @endforeach
                                 </select>
+                                @endif
+
                             </div>
                         </div>
 
@@ -87,7 +94,8 @@
                                 <div class="icheck-primary d-inline">
                                     <input class="form-check-input" type="checkbox" id="is_priority" name="is_priority"
                                         value="1">
-                                    <label class="form-check-label" for="is_priority"><strong>Mark as Priority</strong></label>
+                                    <label class="form-check-label" for="is_priority"><strong>Mark as
+                                            Priority</strong></label>
                                 </div>
                             </div>
                         </div>
@@ -139,8 +147,99 @@
     </section>
 @endsection
 
+@section('styles')
+<style>
+    #user_dropdown {
+        position: absolute;
+        z-index: 1000;
+        /* Pastikan dropdown di atas elemen lain */
+        width: calc(100% - 1rem);
+        /* Sesuaikan dengan lebar input */
+        max-height: 200px;
+        /* Batas tinggi dropdown */
+        overflow-y: auto;
+        /* Scroll jika terlalu banyak item */
+        background-color: white;
+        /* Pastikan latar belakang dropdown putih */
+        border: 1px solid #ced4da;
+        /* Tambahkan border untuk dropdown */
+        border-radius: 0.25rem;
+        /* Tambahkan border-radius untuk dropdown */
+        display: none;
+        /* Sembunyikan dropdown secara default */
+        top: calc(100% + 0.5rem);
+        /* Menempatkan dropdown tepat di bawah input */
+        left: 0;
+        /* Mengatur posisi dropdown agar sejajar dengan input */
+    }
+</style>
+@endsection
+
 @section('scripts')
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
     <script>
+
+        $(document).ready(function() {
+            $('#user_search').on('keyup', function() {
+                let query = $(this).val();
+
+                if (query.length > 0) {
+                    $.ajax({
+                        url: '/search-user',
+                        method: 'GET',
+                        data: {
+                            term: query
+                        },
+                        success: function(data) {
+                            $('#user_dropdown').empty();
+
+                            if (data.length > 0) {
+                                data.forEach(function(user) {
+                                    $('#user_dropdown').append(
+                                        '<a href="#" class="dropdown-item" data-id="' +
+                                        user.id + '">' + user.name + '</a>'
+                                    );
+                                });
+                                $('#user_dropdown').show(); // Tampilkan dropdown
+                            } else {
+                                $('#user_dropdown').append(
+                                    '<a href="#" class="dropdown-item disabled">No users found</a>'
+                                );
+                                $('#user_dropdown').show();
+                            }
+                        }
+                    });
+                } else {
+                    $('#user_dropdown').hide(); // Sembunyikan dropdown jika input kosong
+                }
+            });
+
+            $(document).on('click', '.dropdown-item', function(e) {
+                e.preventDefault();
+                let userName = $(this).text();
+                let userId = $(this).data('id');
+
+                $('#user_search').val(userName);
+                $('#pic').remove();
+
+                $('<input>').attr({
+                    type: 'hidden',
+                    id: 'pic',
+                    name: 'pic',
+                    value: userId
+                }).appendTo('form');
+
+                $('#user_dropdown').hide(); // Sembunyikan dropdown setelah memilih
+            });
+
+            // Sembunyikan dropdown jika klik di luar dropdown
+            $(document).on('click', function(e) {
+                if (!$(e.target).closest('#user_search, #user_dropdown').length) {
+                    $('#user_dropdown').hide();
+                }
+            });
+        });
+
         document.getElementById('addCommentDephead').addEventListener('click', function() {
             // Create a new textarea for comment dephead
             var textareaWrapper = document.createElement('div');

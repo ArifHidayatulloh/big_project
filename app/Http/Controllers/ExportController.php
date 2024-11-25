@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\WorkListExcel;
+use App\Exports\PaymentSupplierExcel;
 use Illuminate\Http\Request;
 
 class ExportController extends Controller
@@ -28,4 +29,12 @@ class ExportController extends Controller
         return Excel::download(new WorkListExcel($status, $dep_code, $pic, $from_date, $to_date), 'working_list.xlsx');
     }
     // End of Working List
+
+    // Payment Supplier
+    function payment_supplier(Request $request){
+        $filters = $request->only(['search', 'status', 'purchase_date_from','purchase_date_to']);
+
+        return Excel::download(new PaymentSupplierExcel($filters), 'payment_supplier.xlsx');
+    }
+    // End of Payment Supplier
 }

@@ -2,7 +2,7 @@
 @section('content')
     <!-- Preloader -->
     <div class="preloader flex-column justify-content-center align-items-center">
-        <img class="animation__shake" src="{{ asset('assets/images/logo_koperasi_indonesia.png') }}" alt="AdminLTELogo"
+        <img class="animation__shake" src="{{ asset('assets/images/LOGO_KKI.png') }}" alt="AdminLTELogo"
             height="60" width="60">
     </div>
     <!-- Content Header (Page header) -->
@@ -48,8 +48,8 @@
         <div class="card">
             <div class="card-body table-responsive p-0"
                 style="box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15); border-radius: 10px;">
-                <table class="table table-hover table-striped text-nowrap">
-                    <thead style="background: linear-gradient(to right, #007bff, #00c6ff); color: white;">
+                <table class="table table-hover table-bordered text-nowrap text-sm">
+                    <thead style="background: #007bff; color: white;">
                         <tr class="text-center">
                             <th style="border-top-left-radius: 10px;">#</th>
                             <th class="text-left">Department</th>

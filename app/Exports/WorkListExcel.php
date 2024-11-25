@@ -64,7 +64,7 @@ class WorkListExcel implements FromView, WithStyles
     public function styles(Worksheet $sheet)
     {
         // Menambahkan gaya pada header
-        $sheet->getStyle('A1:N1')->applyFromArray([
+        $sheet->getStyle('A1:M1')->applyFromArray([
             'font' => ['bold' => true],
             'alignment' => ['horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER],
             'borders' => [

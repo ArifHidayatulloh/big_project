@@ -21,13 +21,15 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', [AuthController::class, 'showLoginForm']);
+Route::get('/loginPage', [AuthController::class, 'showLoginForm']);
 Route::post('/login', [AuthController::class, 'login']);
 
 Route::group(['middleware' => 'auth'], function () {
     Route::get('/logout', [AuthController::class, 'logout']);
 
-    Route::get('/dashboard', [AuthController::class, 'dashboard']);
+    Route::get('/', [AuthController::class, 'dashboard']);
+
+    Route::post('/update_profile/{id}', [AuthController::class, 'edit_profile']);
 
     // User
     Route::get('/search-user', [UserController::class, 'searchUser']);
@@ -110,12 +112,19 @@ Route::group(['middleware' => 'auth'], function () {
     // Payment Schedule
     Route::controller(PaymentScheduleController::class)->prefix('payment_schedule')->group(function(){
         Route::get('/', 'index');
+        Route::post('/store', 'store');
+        Route::get('/edit_modal/{id}', 'getEditModal');
+        Route::post('/update/{paymentSchedule}', 'update');
+        Route::get('/destroy/{paymentSchedule}', 'destroy');
+        Route::post('/edit/{id}', 'edit');
+        Route::post('/rollback/{id}', 'rollback');
     });
     // End of Payment Schedule
 
     // Export
     Route::controller(ExportController::class)->prefix('export')->group(function (){
         Route::get('/working_list', 'excel_working_list');
+        Route::get('/payment_supplier', 'payment_supplier');
     });
     // End of Export
 });
