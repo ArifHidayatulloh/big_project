@@ -96,12 +96,35 @@
                 @if (Auth::user()->access_control_budget == true)
                     <!-- KKI Mart Section -->
                     <li class="nav-header">KKI MART</li>
-                    <li class="nav-item">
-                        <a href="/payment_schedule"
-                            class="nav-link {{ request()->is('payment_schedule*') ? 'active' : '' }}">
+                    <li class="nav-item {{ request()->is('payment_schedule*') ? 'menu-is-opening menu-open' : '' }}">
+                        <a href="#"
+                            class="nav-link {{ request()->is('payment_schedule*')? 'active' : '' }}">
                             <i class="nav-icon fas fa-calendar-alt"></i>
-                            <p>Payment Schedule</p>
+                            <p>Payment Schedule <i class="right fas fa-angle-left"></i></p>
                         </a>
+                        <ul class="nav nav-treeview">
+                            <li class="nav-item">
+                                <a href="/payment_schedule"
+                                    class="nav-link {{ request()->is('payment_schedule') ? 'active' : '' }}">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <p>Data</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="/payment_schedule/unpaid_recap"
+                                    class="nav-link {{ request()->is('payment_schedule/unpaid_recap') ? 'active' : '' }}">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <p>Unpaid Recap</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="/payment_schedule/paid_recap"
+                                    class="nav-link {{ request()->is('payment_schedule/paid_recap') ? 'active' : '' }}">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <p>Paid Recap</p>
+                                </a>
+                            </li>
+                        </ul>
                     </li>
                 @endif
 

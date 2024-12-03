@@ -32,7 +32,7 @@ class ExportController extends Controller
 
     // Payment Supplier
     function payment_supplier(Request $request){
-        $filters = $request->only(['search', 'status', 'purchase_date_from','purchase_date_to']);
+        $filters = $request->only(['search', 'status', 'purchase_date_from','purchase_date_to','due_date','startDate','endDate']);
 
         return Excel::download(new PaymentSupplierExcel($filters), 'payment_supplier.xlsx');
     }

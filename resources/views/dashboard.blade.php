@@ -6,7 +6,7 @@
         <div class="container-fluid">
             <div class="row mb-2">
                 <div class="col-sm-6">
-                    <h1 class="m-0">Dashboard Overview</h1>
+                    <h1 class="m-0">Dashboard</h1>
                 </div>
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
@@ -117,9 +117,9 @@
                     <div class="col-lg-3 col-6">
                         <div class="small-box bg-danger">
                             <div class="inner">
-                                <?php 
+                                <?php
                                     use  \App\Models\WorkingList;
-                                    
+
                                     $outstanding = WorkingList::where('status','Outstanding')->count();
                                 ?>
                                 <h3>{{ $outstanding }}</h3>
@@ -165,7 +165,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
 
                     <div class="card card-info card-outline card-table load-animation">
                         <div class="card-header">
@@ -380,7 +380,7 @@
     <style>
         .card-table {
             width: 100% !important;
-            height: 230px !important;
+            height: 290px !important;
         }
 
         .table {
@@ -414,7 +414,7 @@
         .load-animation{
             animation: fadeIn 0.5s ease-in-out;
         }
-        
+
         .announcement-card {
             border: 2px solid #ffc107;
             animation: fadeIn 0.5s ease-in-out;

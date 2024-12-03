@@ -97,7 +97,6 @@
     </section>
 
 
-
     <section class="content">
         <div class="card shadow-sm" style="border-radius: 15px;">
             <div class="card-body table-responsive p-0"
@@ -149,13 +148,6 @@
                                         <div class="px-3 py-2">
                                             <!-- Checkbox untuk setiap status -->
                                             <div class="form-check">
-                                                <input type="checkbox" class="form-check-input" id="status_outstanding"
-                                                    name="status[]" value="Outstanding"
-                                                    {{ in_array('Outstanding', request('status', [])) ? 'checked' : '' }}>
-                                                <label class="form-check-label"
-                                                    for="status_outstanding">Outstanding</label>
-                                            </div>
-                                            <div class="form-check">
                                                 <input type="checkbox" class="form-check-input" id="status_on_progress"
                                                     name="status[]" value="On Progress"
                                                     {{ in_array('On Progress', request('status', [])) ? 'checked' : '' }}>
@@ -169,16 +161,11 @@
                                                 <label class="form-check-label" for="status_done">Done</label>
                                             </div>
                                             <div class="form-check">
-                                                <input type="checkbox" class="form-check-input" id="status_requested"
-                                                    name="status[]" value="Requested"
-                                                    {{ in_array('Requested', request('status', [])) ? 'checked' : '' }}>
-                                                <label class="form-check-label" for="status_requested">Requested</label>
-                                            </div>
-                                            <div class="form-check">
-                                                <input type="checkbox" class="form-check-input" id="status_rejected"
-                                                    name="status[]" value="Rejected"
-                                                    {{ in_array('Rejected', request('status', [])) ? 'checked' : '' }}>
-                                                <label class="form-check-label" for="status_rejected">Rejected</label>
+                                                <input type="checkbox" class="form-check-input" id="status_outstanding"
+                                                    name="status[]" value="Overdue"
+                                                    {{ in_array('Overdue', request('status', [])) ? 'checked' : '' }}>
+                                                <label class="form-check-label"
+                                                    for="status_outstanding">Overdue</label>
                                             </div>
                                         </div>
                                         <div class="px-3 py-2">
@@ -222,8 +209,8 @@
                                     {{ \Carbon\Carbon::parse($item->deadline)->format('H:i') }}
                                 </td>
                                 <td>
-                                    @if ($item->status == 'Outstanding')
-                                        <span class="badge badge-danger">Outstanding</span>
+                                    @if ($item->status == 'Overdue')
+                                        <span class="badge badge-danger">Overdue</span>
                                     @elseif($item->status == 'On Progress')
                                         <span class="badge badge-warning">On Progress</span>
                                     @elseif($item->status == 'Done')

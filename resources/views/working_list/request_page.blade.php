@@ -80,8 +80,8 @@
                                     <i class="fas fa-clock"></i> {{ \Carbon\Carbon::parse($item->deadline)->format('H:i') }}
                                 </td>
                                 <td>
-                                    @if ($item->status == 'Outstanding')
-                                        <span class="badge badge-danger">Outstanding</span>
+                                    @if ($item->status == 'Overdue')
+                                        <span class="badge badge-danger">Overdue</span>
                                     @elseif($item->status == 'On Progress')
                                         <span class="badge badge-warning">On Progress</span>
                                     @elseif($item->status == 'Done')

@@ -8,54 +8,48 @@ use Illuminate\Support\Facades\Storage;
 
 class PaymentScheduleController extends Controller
 {
-    function index(Request $request)
+    public function index(Request $request)
     {
         $query = PaymentSchedule::query();
 
-        // Filter by search (Invoice Number or Supplier Name)
-        if ($search = $request->input('search')) {
-            $query->where(function ($q) use ($search) {
-                $q->where('invoice_number', 'like', "%$search%")
-                    ->orWhere('supplier_name', 'like', "%$search%");
-            });
-        }
-
-        // Filter by status
-        if ($status = $request->input('status')) {
-            $query->where('status', $status);
-        }
-
-        // Filter by purchase date range
-        if ($purchaseDateFrom = $request->input('purchase_date_from')) {
-            $query->whereDate('purchase_date', '>=', $purchaseDateFrom);
-        }
-
-        if ($purchaseDateTo = $request->input('purchase_date_to')) {
-            $query->whereDate('purchase_date', '<=', $purchaseDateTo);
-        }
+        // Apply filters
+        $this->filterPaymentSchedules($query, $request);
 
         // Sorting
-        $sortBy = $request->input('sort_by', 'purchase_date'); // Default sort column
-        $sortOrder = $request->input('sort_order', 'asc');     // Default sort order
-        $query->orderBy($sortBy, $sortOrder);
+        $this->applySorting($query, $request);
 
-        // Paginate the result and keep query string parameters for pagination links
+        // Paginate results
         $paymentSchedules = $query->paginate(10)->appends($request->all());
 
         return view('payment_schedule.index', compact('paymentSchedules'));
     }
 
-    function store(Request $request)
+    public function unpaid(Request $request)
     {
-        $validatedData = $request->validate([
-            'invoice_number' => 'required|string|max:255|unique:payment_schedules,invoice_number',
-            'supplier_name' => 'required|string|max:255',
-            'payment_amount' => 'required',
-            'purchase_date' => 'required|date',
-            'due_date' => 'required|date',
-        ]);
+        $paymentSchedules = $this->filterByDueDate(PaymentSchedule::where('status', 'Unpaid'), $request);
+        $paymentSchedules = $paymentSchedules->orderBy('due_date', 'desc')->get();
 
-        $validatedData['payment_amount'] = (float) str_replace('.', '', $validatedData['payment_amount']);
+        return view('payment_schedule.unpaid_recap', compact('paymentSchedules'));
+    }
+
+    public function paid(Request $request)
+    {
+        $query = PaymentSchedule::where('status', 'Paid');
+
+        // Apply filters
+        $this->filterBySearch($query, $request);
+        $this->filterByDateRange($query, $request);
+
+        // Get filtered and sorted data
+        $paymentSchedules = $query->orderBy('paid_date', 'desc')->get();
+
+        return view('payment_schedule.paid_recap', compact('paymentSchedules'));
+    }
+
+    public function store(Request $request)
+    {
+        $validatedData = $this->validatePaymentSchedule($request);
+        $validatedData['payment_amount'] = $this->sanitizeAmount($validatedData['payment_amount']);
         $validatedData['status'] = 'Unpaid';
 
         PaymentSchedule::create($validatedData);
@@ -63,100 +57,181 @@ class PaymentScheduleController extends Controller
         return redirect()->back()->with('success', 'Schedule has been successfully added.');
     }
 
-    function update(Request $request, PaymentSchedule $paymentSchedule)
+    public function update(Request $request, PaymentSchedule $paymentSchedule)
     {
-        // Validasi data yang diterima
-        $validatedData = $request->validate([
-            'invoice_number' => 'required|string|max:255|unique:payment_schedules,invoice_number,' . $paymentSchedule->id,
+        $validatedData = $this->validatePaymentSchedule($request, $paymentSchedule->id);
+        $validatedData['payment_amount'] = $this->sanitizeAmount($validatedData['payment_amount']);
+
+        $paymentSchedule->update($validatedData);
+
+        return redirect()->back()->with('success', 'Schedule has been successfully updated.');
+    }
+
+    public function destroy(PaymentSchedule $paymentSchedule)
+    {
+        $this->deleteAttachment($paymentSchedule);
+
+        $paymentSchedule->delete();
+
+        return redirect()->back()->with('success', 'Schedule has been successfully deleted.');
+    }
+
+    public function edit(Request $request, $id)
+    {
+        $paymentSchedule = PaymentSchedule::findOrFail($id);
+        $request->validate($this->getEditValidationRules($paymentSchedule));
+        $this->updatePaymentSchedule($paymentSchedule, $request);
+
+        return redirect('/payment_schedule')->with('success', 'Payment has been successfully marked as paid.');
+    }
+
+    public function rollback($id)
+    {
+        $paymentSchedule = PaymentSchedule::findOrFail($id);
+        $this->rollbackPaymentSchedule($paymentSchedule);
+
+        return redirect('/payment_schedule')->with('success', 'Payment has been successfully rolled back to unpaid.');
+    }
+
+    // Helper Methods
+    private function filterPaymentSchedules($query, Request $request)
+    {
+        if ($search = $request->input('search')) {
+            $query->where(function ($q) use ($search) {
+                $q->where('invoice_number', 'like', "%$search%")
+                    ->orWhere('supplier_name', 'like', "%$search%");
+            });
+        }
+
+        if ($status = $request->input('status')) {
+            $query->where('status', $status);
+        }
+
+        if ($purchaseDateFrom = $request->input('purchase_date_from')) {
+            $query->whereDate('purchase_date', '>=', $purchaseDateFrom);
+        }
+
+        if ($purchaseDateTo = $request->input('purchase_date_to')) {
+            $query->whereDate('purchase_date', '<=', $purchaseDateTo);
+        }
+    }
+
+    private function applySorting($query, Request $request)
+    {
+        $sortBy = $request->input('sort_by', 'created_at');
+        $sortOrder = $request->input('sort_order', 'asc');
+
+        // Default sorting if no filter is applied
+        if (!$request->has('due_date') && !$request->has('sort_by') && !$request->has('sort_order')) {
+            $sortOrder = 'desc'; // Default to descending order when no filters or sorting is set
+        }
+
+        $query->orderBy($sortBy, $sortOrder);
+    }
+
+    private function filterByDueDate($query, Request $request)
+    {
+        $dueDate = $request->query('due_date');
+        if ($dueDate) {
+            $query->whereDate('due_date', '<=', $dueDate);
+        }
+        return $query;
+    }
+
+    private function filterBySearch($query, Request $request)
+    {
+        if ($request->has('search') && $request->search != '') {
+            $searchTerm = $request->search;
+            $query->where(function ($query) use ($searchTerm) {
+                $query->where('invoice_number', 'like', '%' . $searchTerm . '%')
+                    ->orWhere('supplier_name', 'like', '%' . $searchTerm . '%')
+                    ->orWhere('description', 'like', '%' . $searchTerm . '%');
+            });
+        }
+    }
+
+    private function filterByDateRange($query, Request $request)
+    {
+        if ($request->has('startDate') && $request->startDate != '') {
+            $query->whereDate('paid_date', '>=', $request->startDate);
+        }
+        if ($request->has('endDate') && $request->endDate != '') {
+            $query->whereDate('paid_date', '<=', $request->endDate);
+        }
+    }
+
+    private function validatePaymentSchedule(Request $request, $id = null)
+    {
+        $uniqueRule = 'unique:payment_schedules,invoice_number';
+        if ($id) {
+            $uniqueRule .= ',' . $id;
+        }
+
+        return $request->validate([
+            'invoice_number' => "required|string|max:255|$uniqueRule",
             'supplier_name' => 'required|string|max:255',
             'payment_amount' => 'required',
             'purchase_date' => 'required|date',
             'due_date' => 'required|date',
         ]);
-
-        // Konversi payment_amount menjadi float dan hilangkan titik jika ada
-        $validatedData['payment_amount'] = (float) str_replace('.', '', $validatedData['payment_amount']);
-
-        // Update data paymentSchedule
-        $paymentSchedule->update($validatedData);
-
-        // Redirect kembali dengan pesan sukses
-        return redirect()->back()->with('success', 'Schedule has been successfully updated.');
     }
 
-    function destroy(PaymentSchedule $paymentSchedule)
+    private function sanitizeAmount($amount)
+    {
+        return (float) str_replace('.', '', $amount);
+    }
+
+    private function deleteAttachment(PaymentSchedule $paymentSchedule)
     {
         if ($paymentSchedule->attachment && Storage::exists('public/' . $paymentSchedule->attachment)) {
             Storage::delete('public/' . $paymentSchedule->attachment);
         }
-
-        // Hapus data paymentSchedule
-        $paymentSchedule->delete();
-
-        // Redirect kembali dengan pesan sukses
-        return redirect()->back()->with('success', 'Schedule has been successfully deleted.');
     }
 
-    function edit(Request $request, $id)
+    private function getEditValidationRules(PaymentSchedule $paymentSchedule)
     {
-        $paymentSchedule = PaymentSchedule::findOrFail($id);
-
-        // Tentukan aturan validasi dasar
-        $rules = [
+        return [
             'paid_date' => 'required',
             'description' => 'nullable',
+            'attachment' => ($paymentSchedule->attachment)
+                ? 'nullable|mimes:pdf|max:2048'
+                : 'required|mimes:pdf|max:2048',
         ];
+    }
 
-        // Cek apakah ada file attachment
-        if ($paymentSchedule->attachment != null) {
-            // Jika ada attachment, maka file attachment opsional
-            $rules['attachment'] = 'nullable|mimes:pdf|max:2048';
-        } else {
-            // Jika tidak ada attachment, maka attachment menjadi diperlukan
-            $rules['attachment'] = 'required|mimes:pdf|max:2048';
-        }
-
-        // Validasi request menggunakan aturan yang telah ditentukan
-        $request->validate($rules);
-
-
-        $paymentSchedule->paid_date = $request->paid_date;
-        $paymentSchedule->status = 'Paid';
-        $paymentSchedule->description = $request->description;
+    private function updatePaymentSchedule(PaymentSchedule $paymentSchedule, Request $request)
+    {
+        $paymentSchedule->fill([
+            'paid_date' => $request->paid_date,
+            'status' => 'Paid',
+            'description' => $request->description,
+        ]);
 
         if ($request->hasFile('attachment')) {
-            if ($paymentSchedule->attachment && Storage::exists('public/' . $paymentSchedule->attachment)) {
-                Storage::delete('public/' . $paymentSchedule->attachment);
-            }
-            // Ambil file yang di-upload
+            $this->deleteAttachment($paymentSchedule);
+
             $file = $request->file('attachment');
+            $filePath = $file->storeAs(
+                'attachment_payment_supplier',
+                $paymentSchedule->invoice_number . '.' . $file->getClientOriginalExtension(),
+                'public'
+            );
 
-            // Tentukan nama file berdasarkan invoice_number dan ekstensi file
-            $attachmentFileName = $paymentSchedule->invoice_number . '.' . $file->getClientOriginalExtension();
-
-            // Simpan file di folder yang ditentukan
-            $filePath = $file->storeAs('attachment_payment_supplier', $attachmentFileName, 'public');
-
-            // Update path file di database
             $paymentSchedule->attachment = $filePath;
         }
 
         $paymentSchedule->save();
-
-        return redirect('/payment_schedule')->with('success', 'Payment has been successfully marked as paid.');
     }
 
-    function rollback($id){
-        $paymentSchedule = PaymentSchedule::findOrFail($id);
-        $paymentSchedule->status = 'Unpaid';
-        $paymentSchedule->paid_date = null;
-        $paymentSchedule->description = null;
-        if ($paymentSchedule->attachment && Storage::exists('public/' . $paymentSchedule->attachment)) {
-            Storage::delete('public/' . $paymentSchedule->attachment);
-        }
-        $paymentSchedule->attachment = null;
-        $paymentSchedule->save();
+    private function rollbackPaymentSchedule(PaymentSchedule $paymentSchedule)
+    {
+        $paymentSchedule->update([
+            'status' => 'Unpaid',
+            'paid_date' => null,
+            'description' => null,
+            'attachment' => null,
+        ]);
 
-        return redirect('/payment_schedule')->with('success', 'Payment has been successfully rolled back to unpaid.');
+        $this->deleteAttachment($paymentSchedule);
     }
 }

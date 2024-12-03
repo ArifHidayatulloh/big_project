@@ -65,7 +65,7 @@ class WorkingList extends Model
         // Cek apakah deadline sudah terlewati dan complete_date masih kosong
         if ($this->status === 'On Progress' && $this->deadline < now() && !$this->complete_date) {
             // Update status menjadi Outstanding
-            $this->status = 'Outstanding';
+            $this->status = 'Overdue';
 
             // Update status comment menjadi Uncompleted
             $this->status_comment = 'uncompleted'; // Asumsikan Anda memiliki field comment_status

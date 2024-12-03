@@ -363,7 +363,7 @@ class WorkingListController extends Controller
         $status = 'On Progress';  // Default status jika complete_date tidak diinput
         if ($validatedData['complete_date']) {
             if ($validatedData['complete_date'] > $validatedData['deadline']) {
-                $status = 'Outstanding';
+                $status = 'Overdue';
             } else {
                 $status = 'Done';
             }
@@ -376,12 +376,12 @@ class WorkingListController extends Controller
         if ($status == 'Done' && $validatedData['complete_date'] <= $validatedData['deadline']) {
             $score = 100;
         }
-        // Jika status Outstanding dan status_comment 'finish'
-        elseif ($status == 'Outstanding' && $validatedData['status_comment'] == 'completed') {
+        // Jika status Overdue dan status_comment 'finish'
+        elseif ($status == 'Overdue' && $validatedData['status_comment'] == 'completed') {
             $score = 85;
         }
-        // Jika status Outstanding dan status_comment 'uncompleted'
-        elseif ($status == 'Outstanding' && $validatedData['status_comment'] == 'uncompleted') {
+        // Jika status Overdue dan status_comment 'uncompleted'
+        elseif ($status == 'Overdue' && $validatedData['status_comment'] == 'uncompleted') {
             $score = 50;
         }
 
@@ -529,7 +529,7 @@ class WorkingListController extends Controller
         $workingList = WorkingList::findOrFail($id);
 
         $workingList->request_at = Carbon::now();
-        $workingList->status = 'Requested';
+        $workingList->request_status = 'Requested';
         $workingList->save();
 
         return redirect("/working-list/$workingList->id")->with('success', 'Request for approval has been sent. ');
@@ -537,7 +537,7 @@ class WorkingListController extends Controller
 
     function request_approve()
     {
-        $workingLists = WorkingList::where('status', 'Requested')->paginate(20);
+        $workingLists = WorkingList::where('request_status', 'Requested')->paginate(20);
 
         return view('working_list.request_page', compact('workingLists'));
     }
@@ -555,7 +555,7 @@ class WorkingListController extends Controller
             'status_comment' => 'required|string|in:completed,uncompleted'
         ]);
 
-        $status = 'Outstanding';
+        $status = 'Overdue';
         $score = 50;
 
         if ($validatedData['complete_date'] <= $workingList->deadline) {
@@ -570,6 +570,7 @@ class WorkingListController extends Controller
             'status' => $status,
             'score' => $score,
             'status_comment' => $validatedData['status_comment'], // Simpan status comment
+            'request_status' => 'Approved', 
             'approved_by' => auth()->id(),
         ]);
         // Kirim email ke PIC
@@ -591,7 +592,7 @@ class WorkingListController extends Controller
 
         $workingList->update([
             'reject_reason' => $validatedData['reject_reason'],
-            'status' => 'Rejected',
+            'request_status' => 'Rejected',
             'rejected_by' => auth()->id()
         ]);
 

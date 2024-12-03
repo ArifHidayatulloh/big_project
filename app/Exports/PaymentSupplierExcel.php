@@ -41,6 +41,18 @@ class PaymentSupplierExcel implements FromView, WithStyles
             $query->where('purchase_date', '<=', $this->filters['purchase_date_to']);
         }
 
+        if (!empty($this->filters['due_date'])) {
+            $query->where('due_date', '<=', $this->filters['due_date']);
+        }
+
+        if (!empty($this->filters['startDate'])) {
+            $query->whereDate('paid_date', '>=', $this->filters['startDate']);
+        }
+
+        if (!empty($this->filters['endDate'])) {
+            $query->whereDate('paid_date', '<=', $this->filters['endDate']);
+        }
+
         $paymentSchedules = $query->get();
 
         // Return view khusus untuk Excel
@@ -94,7 +106,7 @@ class PaymentSupplierExcel implements FromView, WithStyles
         }
 
         $sheet->getStyle('D2:D' . $highestRow)->getNumberFormat()->setFormatCode('"Rp "#,##0_-');
-        
+
         // Set auto width untuk kolom agar lebih rapi
         foreach (range('A', $sheet->getHighestColumn()) as $columnID) {
             $sheet->getColumnDimension($columnID)->setAutoSize(true);

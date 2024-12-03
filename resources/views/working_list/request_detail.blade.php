@@ -83,6 +83,15 @@
                                                                     target="_blank">Download PDF</a>
                                                             </p>
                                                         @endif
+                                                        <div class="mt-2 d-flex justify-content-end align-item-center">
+                                                            <!-- Update Info Positioned to the Right -->
+                                                            <div class="text-right">
+                                                                <span class="text-sm">Update by:
+                                                                    {{ $updatePic->updator->name }}</span><br>
+                                                                <span
+                                                                    class="text-sm">{{ \Carbon\Carbon::parse($updatePic->updated_at)->format('d M Y, H:i') }}</span>
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             @empty

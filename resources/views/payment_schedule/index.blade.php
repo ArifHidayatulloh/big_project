@@ -51,14 +51,15 @@
                     </form>
                 </div>
             </div>
+        </div>
     </section>
 
     <section class="content">
         <form method="GET" action="/payment_schedule" class="mb-3">
             <div class="row">
                 <div class="col-md-3">
-                    <input type="text" name="search" class="form-control form-control-sm" placeholder="Invoice Number or Supplier Name"
-                        value="{{ request('search') }}">
+                    <input type="text" name="search" class="form-control form-control-sm"
+                        placeholder="Invoice Number or Supplier Name" value="{{ request('search') }}">
                 </div>
                 <div class="col-md-2">
                     <select name="status" class="form-control form-control-sm">
@@ -68,19 +69,19 @@
                     </select>
                 </div>
                 <div class="col-md-2">
-                    <input type="date" name="purchase_date_from" class="form-control form-control-sm" placeholder="Purchase Date From"
-                        value="{{ request('purchase_date_from') }}">
+                    <input type="date" name="purchase_date_from" class="form-control form-control-sm"
+                        placeholder="Purchase Date From" value="{{ request('purchase_date_from') }}">
                 </div>
                 <div class="col-md-2">
-                    <input type="date" name="purchase_date_to" class="form-control form-control-sm" placeholder="Purchase Date To"
-                        value="{{ request('purchase_date_to') }}">
+                    <input type="date" name="purchase_date_to" class="form-control form-control-sm"
+                        placeholder="Purchase Date To" value="{{ request('purchase_date_to') }}">
                 </div>
                 <div class="col-md-3 d-flex" style="gap:8px; justify-content:end;">
                     <button type="submit" class="btn btn-primary btn-sm">
                         <i class="fas fa-filter"></i>
                     </button>
                     <a href="/payment_schedule" class="btn btn-secondary btn-sm">
-                    <i class="fas fa-sync"></i></a>
+                        <i class="fas fa-sync"></i></a>
                 </div>
             </div>
         </form>
@@ -91,7 +92,7 @@
         <div class="card shadow-sm" style="border-radius:15px;">
             <div class="card-body table-responsive p-0"
                 style="box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15); border-radius: 10px;">
-                <table class="table table-bordered table-hover text-nowrap" >
+                <table class="table table-bordered table-hover text-nowrap">
                     <thead style="background: #007bff; color: white;" class="text-sm">
                         <tr class="text-center align-middle">
                             <th class="text-center align-middle">#</th>
@@ -142,28 +143,44 @@
                     <tbody class="text-center text-sm">
                         @forelse ($paymentSchedules as $item)
                             <tr class="hover-highlight">
-                                <td>{{ $loop->iteration }}</td>
-                                <td class="text-left">{{ $item->invoice_number }}</td>
-                                <td class="text-left">{{ $item->supplier_name }}</td>
-                                <td>Rp {{ number_format($item->payment_amount, 0, ',', '.') }}</td>
-                                <td>{{ \Carbon\Carbon::parse($item->purchase_date)->format('d M Y') }}
+                                <td class="align-content-center text-center">{{ $loop->iteration }}</td>
+                                <td class="text-left align-content-center">{{ $item->invoice_number }}</td>
+                                <td class="text-left align-content-center">{{ $item->supplier_name }}</td>
+                                <td class="align-content-center">Rp {{ number_format($item->payment_amount, 0, ',', '.') }}</td>
+                                <td class="align-content-center">{{ \Carbon\Carbon::parse($item->purchase_date)->format('d M Y') }}
                                     <br>
                                     <i class="fas fa-clock"></i>
                                     {{ \Carbon\Carbon::parse($item->purchase_date)->format('H:i') }}
                                 </td>
-                                <td>{{ \Carbon\Carbon::parse($item->due_date)->format('d M Y') }}
+                                <td class="align-content-center">
+                                    {{ \Carbon\Carbon::parse($item->due_date)->format('d M Y') }}
                                     <br>
                                     <i class="fas fa-clock"></i>
                                     {{ \Carbon\Carbon::parse($item->due_date)->format('H:i') }}
+
+                                    @if (\Carbon\Carbon::now() > \Carbon\Carbon::parse($item->due_date) && $item->status == 'Unpaid')
+                                        {{-- Kondisi Overdue --}}
+                                        <span class="text-danger font-weight-bold">
+                                            <i class="fas fa-times-circle blinking"></i>
+                                        </span>
+                                    @elseif (\Carbon\Carbon::now()->diffInDays(\Carbon\Carbon::parse($item->due_date)) <= 3 && $item->status == 'Unpaid')
+                                        {{-- Kondisi Due Soon --}}
+                                        <span class="text-warning font-weight-bold">
+                                            <i class="fas fa-exclamation-triangle blinking"></i>
+                                        </span>
+                                    @else
+
+                                    @endif
                                 </td>
-                                <td>
+
+                                <td class="align-content-center">
                                     @if ($item->status == 'Unpaid')
                                         <span class="text-danger">Unpaid</span>
                                     @else
                                         <span class="text-success">Paid</span>
                                     @endif
                                 </td>
-                                <td>
+                                <td class="align-content-center">
                                     @if ($item->paid_date != null)
                                         {{ \Carbon\Carbon::parse($item->paid_date)->format('d M Y') }}
                                         <br>
@@ -173,15 +190,15 @@
                                         -
                                     @endif
                                 </td>
-                                <td>
+                                <td class="align-content-center">
                                     @if ($item->attachment)
                                         <a href="#" class="btn btn-primary btn-sm shadow-sm" data-toggle="modal"
-                                            data-target="#pdfModal{{ $item->id }}"><i class="fas fa-eye"></i></a>
+                                            data-target="#pdfModal{{ $item->id }}"><i class="fas fa-paperclip"></i></a>
                                     @else
                                         -
                                     @endif
                                 </td>
-                                <td>
+                                <td class="align-content-center">
                                     @if ($item->description != null)
                                         {{ $item->description }}
                                     @else
@@ -189,7 +206,7 @@
                                     @endif
                                 </td>
                                 @if (Auth::user()->unit != null)
-                                    <td class="text-center">
+                                    <td class="text-center align-content-center">
                                         @if (Auth::user()->unit->name == 'KKI MART')
                                             <a href="javascript:void(0)" data-toggle="modal"
                                                 data-target="#editScheduleModal{{ $item->id }}"
@@ -203,18 +220,21 @@
                                             </a>
                                         @endif
                                         @if (Auth::user()->unit->name == 'TREASURY')
-                                        <div class="d-flex align-items-center">
-                                            <a href="javascript:void(0)" data-toggle="modal" data-target="#updatePaymentModal{{ $item->id }}"
-                                                class="btn btn-sm btn-info shadow-sm mr-1">
-                                                <i class="fas fa-file-invoice"></i>
-                                            </a>
-                                            <form action="/payment_schedule/rollback/{{ $item->id }}" method="POST" enctype="multipart/form-data">
-                                                @csrf
-                                                <button class="btn btn-sm btn-warning shadow-sm" onclick="confirm('Are you sure want to rollback this item?')">
-                                                    <i class="fas fa-undo"></i>
-                                                </button>
-                                            </form>
-                                        </div>
+                                            <div class="d-flex align-items-center">
+                                                <a href="javascript:void(0)" data-toggle="modal"
+                                                    data-target="#updatePaymentModal{{ $item->id }}"
+                                                    class="btn btn-sm btn-info shadow-sm mr-1">
+                                                    <i class="fas fa-file-invoice"></i>
+                                                </a>
+                                                <form action="/payment_schedule/rollback/{{ $item->id }}"
+                                                    method="POST" enctype="multipart/form-data">
+                                                    @csrf
+                                                    <button class="btn btn-sm btn-warning shadow-sm"
+                                                        onclick="confirm('Are you sure want to rollback this item?')">
+                                                        <i class="fas fa-undo"></i>
+                                                    </button>
+                                                </form>
+                                            </div>
                                         @endif
                                     </td>
                                 @endif
@@ -362,22 +382,27 @@
                                 <div class="modal-dialog modal-lg" role="document">
                                     <div class="modal-content rounded-3">
                                         <div class="modal-header bg-primary text-white">
-                                            <h5 class="modal-title" id="pdfModalLabel{{ $item->id }}">Attachment Viewer</h5>
-                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <h5 class="modal-title" id="pdfModalLabel{{ $item->id }}">Attachment
+                                                Viewer</h5>
+                                            <button type="button" class="close" data-dismiss="modal"
+                                                aria-label="Close">
                                                 <span aria-hidden="true">&times;</span>
                                             </button>
                                         </div>
                                         <div class="modal-body p-4">
                                             <!-- PDF Viewer -->
                                             <div class="embed-responsive embed-responsive-16by9">
-                                                <iframe src="{{ asset('storage/' . $item->attachment) }}" class="embed-responsive-item"
-                                                    width="100%" height="500px" allow="fullscreen"></iframe>
+                                                <iframe src="{{ asset('storage/' . $item->attachment) }}"
+                                                    class="embed-responsive-item" width="100%" height="500px"
+                                                    allow="fullscreen"></iframe>
                                             </div>
                                         </div>
                                         <div class="modal-footer">
-                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                            <button type="button" class="btn btn-secondary"
+                                                data-dismiss="modal">Close</button>
                                             <!-- Optionally you can add a download button -->
-                                            <a href="{{ asset('storage/' . $item->attachment) }}" class="btn btn-primary" download>
+                                            <a href="{{ asset('storage/' . $item->attachment) }}" class="btn btn-primary"
+                                                download>
                                                 <i class="fas fa-download"></i> Download PDF
                                             </a>
                                         </div>
@@ -466,6 +491,21 @@
     </div>
 @endsection
 
+@section('styles')
+    <style>
+        .blinking {
+            animation: blinker 1.5s linear infinite;
+            /* color: #ffc107; */
+            /* Warna kuning untuk ikon peringatan */
+        }
+
+        @keyframes blinker {
+            50% {
+                opacity: 0;
+            }
+        }
+    </style>
+@endsection
 
 @section('scripts')
     <script>

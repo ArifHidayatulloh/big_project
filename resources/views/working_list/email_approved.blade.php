@@ -85,7 +85,7 @@
             <p>You can now proceed with the necessary steps to complete the approved working list.</p>
 
             <!-- Optional Call-to-Action Button -->
-            <a href="" class="btn">View Working List</a>
+            <a href="{{ url('/working-list/' . $workingList->id) }}" class="btn">View Working List</a>
         </div>
 
         <!-- Email Footer -->

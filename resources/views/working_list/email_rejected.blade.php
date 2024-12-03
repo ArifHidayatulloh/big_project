@@ -99,7 +99,7 @@
             <p>Please review the rejection reason and make the necessary adjustments before resubmitting your working list for approval.</p>
 
             <!-- Optional Call-to-Action Button -->
-            <a href="" class="btn">View Working List</a>
+            <a href="{{ url('/working-list/' . $workingList->id) }}" class="btn">View Working List</a>
         </div>
 
         <!-- Email Footer -->

@@ -85,7 +85,7 @@
             <p>Please review the details and ensure timely completion.</p>
 
             <!-- Optional Call-to-Action Button -->
-            <a href="" class="btn">View Working List</a>
+            <a href="{{ url('/working-list/' . $workingList->id) }}" class="btn">View Working List</a>
         </div>
 
         <!-- Email Footer -->

@@ -117,8 +117,10 @@
                                                 <p class="text-muted">No updates available for this comment</p>
                                             @endforelse
                                         </div>
+                                        @if (Auth::user()->id == $item->pic)
                                         <a href="/working-list/updatePIC/{{ $comment->id }}"
                                             class="btn btn-sm btn-primary mt-3 color-white">[+] Add Update</a>
+                                        @endif
                                     </li>
                                 @empty
                                     <li class="text-center">No comments or updates available</li>
@@ -139,7 +141,8 @@
                             </a>
                         </div>
 
-                        @if ($item->status == 'Done' || $item->status == 'Outstanding')
+                        @if (Auth::user()->id == $item->pic)
+                        @if ($item->request_status == 'Approved' || $item->status == 'Done')
                         @else
                             <form action="/working-list/requestActionPIC/{{ $item->id }}" method="post">
                                 @csrf
@@ -148,6 +151,7 @@
                                     <i class="fas fa-paper-plane"></i> Request Action
                                 </button>
                             </form>
+                        @endif
                         @endif
                     </div>
 

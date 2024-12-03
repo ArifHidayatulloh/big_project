@@ -112,6 +112,8 @@ Route::group(['middleware' => 'auth'], function () {
     // Payment Schedule
     Route::controller(PaymentScheduleController::class)->prefix('payment_schedule')->group(function(){
         Route::get('/', 'index');
+        Route::get('/unpaid_recap', 'unpaid');
+        Route::get('/paid_recap', 'paid');
         Route::post('/store', 'store');
         Route::get('/edit_modal/{id}', 'getEditModal');
         Route::post('/update/{paymentSchedule}', 'update');

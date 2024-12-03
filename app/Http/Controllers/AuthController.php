@@ -83,7 +83,7 @@ class AuthController extends Controller
             }
 
             $user->update($data);
-            return redirect('/dashboard')->with('success', 'Profile has been successfully updated.');
+            return redirect('/')->with('success', 'Profile has been successfully updated.');
         } catch (ValidationException $e) {
             if ($e->validator->errors()->has('nik')) {
                 return back()->withErrors(['nik' => 'This NIK is already in use.'])->withInput();
