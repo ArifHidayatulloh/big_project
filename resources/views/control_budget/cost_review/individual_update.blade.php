@@ -1,102 +1,107 @@
 @extends('layouts.app')
 
 @section('content')
-    <!-- Content Header (Page header) -->
-    <div class="content-header">
-        <div class="container-fluid">
-            <div class="row mb-2">
-                <div class="col-sm-6">
-                    <h1 class="m-0">Individual Update</h1>
-                </div>
-                <div class="col-sm-6">
-                    <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item"><a href="#">Home</a></li>
-                        <li class="breadcrumb-item active">Individual Update</li>
-                    </ol>
-                </div>
-            </div>
-        </div>
-    </div>
+<section class="content pb-4">
+    <div class="container-fluid">
+        {{-- {{ route('budget.updateIndividual', ['month' => $month, 'year' => $year]) }} --}}
+        <form action="/control-budget/individual_update/{{ $costReview->id }}/{{ date('F', mktime(0, 0, 0, $monthNumber, 10)) }}/{{ $year }}" method="post">
+            @csrf
 
-    <section class="content pb-4">
-        <div class="container-fluid">
-            <form action="" method="post">
-                @csrf
-                @method('PUT')
-
-                <!-- Select Month and Year -->
-                <div class="card mb-4">
+            <!-- Pilihan untuk bulan dan tahun -->
+            <section class="content pt-2">
+                <div class="card">
                     <div class="card-header">
+                        <!-- Input Tahun -->
                         <div class="form-group">
-                            <label for="year">Select Year:</label>
-                            <input type="number" class="form-control" name="year" id="year"
-                                value="{{ $year }}">
+                            <label>Year:</label>
+                            <input type="number" class="form-control" name="year" value="{{ $year }}" readonly>
                         </div>
+
+                        <!-- Input Bulan -->
                         <div class="form-group">
-                            <label for="month">Select Month:</label>
-                            <select name="month" id="month" class="form-control" disabled>
-                                <option value="{{ $month }}"> {{ $month }}</option>
-                                {{-- @foreach ($months as $key => $value)
-                                    <option value="{{ $key }}" {{ $key == $month ? 'selected' : '' }}>
-                                        {{ $value }}</option>
-                                @endforeach --}}
-                            </select>
+                            <label>Month:</label>
+                            <input type="text" class="form-control" value="{{ date('F', mktime(0, 0, 0, $monthNumber, 10)) }}" readonly>
                         </div>
                     </div>
                 </div>
 
-                <!-- Category Blocks -->
-                @foreach ($categories as $category)
+                <!-- Category Block -->
+                @forelse($categories as $category)
                     <div class="card card-primary">
                         <div class="card-header">
                             <h3 class="card-title">{{ $category->category_name }}</h3>
+                            <div class="card-tools">
+                                <button class="btn btn-tool" data-toggle="collapse" data-target="#category{{ $category->id }}">
+                                    <i class="fas fa-minus"></i>
+                                </button>
+                            </div>
                         </div>
-                        <div class="card-body">
-                            @foreach ($category->subcategory as $subCategory)
-                                <div class="card card-info">
-                                    <div class="card-header">
-                                        <h3 class="card-title">{{ $subCategory->sub_category_name }}</h3>
-                                    </div>
-                                    <div class="card-body">
-                                        <ul class="list-group">
-                                            @foreach ($subCategory->descriptions as $description)
-                                                <li class="list-group-item">
-                                                    <strong>{{ $description->description_text }}</strong>
-                                                    <div class="float-right">
-                                                        <div class="input-group">
-                                                            <div class="input-group-prepend">
-                                                                <span class="input-group-text">Rp</span>
+
+                        <div class="card-body collapse show" id="category{{ $category->id }}">
+                            <div class="row">
+                                @forelse($category->subcategory as $subCategory)
+                                    <div class="col-md-12">
+                                        <div class="card card-info">
+                                            <div class="card-header">
+                                                <h3 class="card-title">{{ $subCategory->sub_category_name }}</h3>
+                                            </div>
+
+                                            <div class="card-body collapse show" id="subcategory{{ $subCategory->id }}">
+                                                <ul class="list-group">
+                                                    @forelse($subCategory->descriptions as $description)
+                                                        <li class="list-group-item">
+                                                            <strong>{{ $description->description_text }}</strong>
+                                                            <div class="float-right">
+                                                                <div class="input-group">
+                                                                    <div class="input-group-prepend">
+                                                                        <strong class="input-group-text">Rp</strong>
+                                                                    </div>
+                                                                    @php
+                                                                        $plannedBudget = $description->monthly_budget->first()->planned_budget ?? 0;
+                                                                    @endphp
+                                                                    <input type="text" class="form-control"
+                                                                        name="planned_budgets[{{ $description->id }}]"
+                                                                        value="{{ old('planned_budgets.' . $description->id, $plannedBudget) }}"
+                                                                        placeholder="Enter planned budget"
+                                                                        onkeyup="formatRupiah(this)">
+                                                                </div>
                                                             </div>
-                                                            <input type="text" class="form-control"
-                                                                name="planned_budgets[{{ $description->id }}]"
-                                                                value="{{ old('planned_budgets.' . $description->id, $description->monthlyBudgetPlanned?->planned_budget) }}"
-                                                                onkeyup="formatRupiah(this)">
-                                                        </div>
-                                                    </div>
-                                                </li>
-                                            @endforeach
-                                        </ul>
+                                                        </li>
+                                                    @empty
+                                                        <li class="list-group-item">No descriptions found</li>
+                                                    @endforelse
+                                                </ul>
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
-                            @endforeach
+                                @empty
+                                    <p>No subcategories found</p>
+                                @endforelse
+                            </div>
                         </div>
                     </div>
-                @endforeach
+                @empty
+                    <p>No categories found</p>
+                @endforelse
 
-                <!-- Save Button -->
-                <div class="d-flex justify-content-end mt-4">
-                    <button type="submit" class="btn btn-success">
+                <!-- Buttons Section -->
+                <div class="d-flex justify-content-between mt-4 align-items-center">
+                    <a href="{{ url()->previous() }}" class="btn btn-secondary btn-m">
+                        <i class="fas fa-arrow-left"></i> Cancel
+                    </a>
+                    <button type="submit" class="btn btn-success btn-m">
                         <i class="fas fa-save"></i> Save
                     </button>
                 </div>
-            </form>
-        </div>
-    </section>
+        </form>
+    </div>
+</section>
 @endsection
 
 @section('scripts')
     <script>
         function formatRupiah(input) {
+            // Menghapus karakter yang bukan angka
             let value = input.value.replace(/[^,\d]/g, '').toString();
             let split = value.split(',');
             let rupiah = split[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.');
@@ -104,6 +109,7 @@
             if (split[1]) {
                 rupiah += ',' + split[1];
             }
+
             input.value = rupiah;
         }
     </script>

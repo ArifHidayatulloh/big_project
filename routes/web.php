@@ -105,7 +105,13 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('/planned_budget/{costReview}', 'planned_budget');
         Route::post('/budget_plan_add','plan_budget');
         Route::get('/review_cost/{costReviewId}', 'review_cost');
-        Route::get('/individual_update_page/{month}/{year}', 'individualUpdatePage');
+        Route::get('/individual_update_page/{id}/{month}/{year}', 'individualUpdatePage');
+        Route::post('/individual_update/{id}/{month}/{year}', 'individualUpdate');
+
+        // Route admin unit
+        Route::get('/actual/{id}','actual');
+        Route::get('/actual/details/{id}','actual_detail');
+
     });
     // End of Control Budget
 

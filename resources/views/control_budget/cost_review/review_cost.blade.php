@@ -54,117 +54,139 @@
                 <div class="card-header">
                     <h3 class="card-title">Cost Review Summary</h3>
                     <div class="d-flex justify-content-end mb-3">
-                        <a href="/control-budget/individual_update_page/{{ $selectedMonth }}/{{ $selectedYear }}"
-                            class="btn btn-primary mx-1">Individual Update</a>
-                        <a href="" class="btn btn-secondary mx-1">Mass Update</a>
+                        <a href="/control-budget/individual_update_page/{{ $costReview->id }}/{{ $selectedMonth }}/{{ $selectedYear }}"
+                            class="btn btn-primary mx-1 btn-sm @if (!$hasDataForSelectedMonth) disabled-link @endif"
+                            @if (!$hasDataForSelectedMonth) tabindex="-1"
+                                aria-disabled="true" @endif>
+                            <i class="fas fa-edit"></i>
+                        </a>
                     </div>
                 </div>
+
                 <div class="card-body table-responsive p-0" style="box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);">
-                    <table class="table table-hover table-striped text-nowrap">
-                        <thead style="background: linear-gradient(to right, #007bff, #00c6ff); color: white;">
-                            <tr class="text-center">
-                                <th>DESCRIPTION</th>
-                                <th>ACTUAL</th>
-                                <th>PLAN</th>
-                                <th>VAR</th>
-                                <th>PERCENTAGE</th>
-                                <th>REMARKS</th>
-                            </tr>
-                        </thead>
-                        <tbody class="text-center">
-                            @foreach ($categories as $category)
-                                @php
-                                    $totalActCategory = 0;
-                                    $totalPlanCategory = 0;
-                                @endphp
-
-                                <tr class="bg-light">
-                                    <td colspan="6" class="text-left"><strong>{{ $category->category_name }}</strong>
-                                    </td>
+                    @if ($hasDataForSelectedMonth)
+                        <!-- Tampilkan tabel jika ada data -->
+                        <table class="table table-hover table-striped text-nowrap">
+                            <thead style="background: linear-gradient(to right, #007bff, #00c6ff); color: white;">
+                                <tr class="text-center">
+                                    <th>DESCRIPTION</th>
+                                    <th>ACTUAL</th>
+                                    <th>PLAN</th>
+                                    <th>VAR</th>
+                                    <th>PERCENTAGE</th>
+                                    <th>REMARKS</th>
                                 </tr>
-
-                                @foreach ($category->subcategory as $subCategory)
+                            </thead>
+                            <tbody class="text-center">
+                                @foreach ($categories as $category)
                                     @php
-                                        $totalActSubCategory = 0;
-                                        $totalPlanSubCategory = 0;
+                                        $totalActCategory = 0;
+                                        $totalPlanCategory = 0;
                                     @endphp
-
-                                    <tr style="background-color: #d1ecf1; color: #0c5460;">
-                                        <td colspan="6" class="text-left" style="padding-left: 20px;">
-                                            <strong>{{ $subCategory->sub_category_name }}</strong></td>
+                                    <tr class="bg-light">
+                                        <td colspan="6" class="text-left">
+                                            <strong>{{ $category->category_name }}</strong>
+                                        </td>
                                     </tr>
-
-                                    @foreach ($subCategory->descriptions as $description)
+                                    @foreach ($category->subcategory as $subCategory)
                                         @php
-                                            $monthlyBudget = optional($description->monthly_budget)->first();
-                                            $plannedBudget = optional($monthlyBudget)->planned_budget ?? 0;
-
-                                            $actualData = optional($monthlyBudget->actual ?? collect())->first();
-                                            $actualSpent = optional($actualData)->actual_spent ?? 0;
-                                            $remarks = optional($actualData)->remarks ?? '-';
-
-                                            $variance = $plannedBudget - $actualSpent;
-                                            $percentage =
-                                                $plannedBudget > 0 ? ($actualSpent / $plannedBudget) * 100 : 0;
-
-                                            $totalActSubCategory += $actualSpent;
-                                            $totalPlanSubCategory += $plannedBudget;
-                                            $totalActCategory += $actualSpent;
-                                            $totalPlanCategory += $plannedBudget;
+                                            $totalActSubCategory = 0;
+                                            $totalPlanSubCategory = 0;
                                         @endphp
+                                        <tr style="background-color: #d1ecf1; color: #0c5460;">
+                                            <td colspan="6" class="text-left" style="padding-left: 20px;">
+                                                <strong>{{ $subCategory->sub_category_name }}</strong>
+                                            </td>
+                                        </tr>
 
+                                        @foreach ($subCategory->descriptions as $description)
+                                            @php
+                                                $monthlyBudget = optional($description->monthly_budget)->first();
+                                                $plannedBudget = optional($monthlyBudget)->planned_budget ?? 0;
+
+                                                $actualData = optional($monthlyBudget->actual ?? collect())->first();
+                                                $actualSpent = optional($actualData)->actual_spent ?? 0;
+                                                $remarks = optional($actualData)->remarks ?? '-';
+
+                                                $variance = $plannedBudget - $actualSpent;
+                                                $percentage =
+                                                    $plannedBudget > 0 ? ($actualSpent / $plannedBudget) * 100 : 0;
+
+                                                $totalActSubCategory += $actualSpent;
+                                                $totalPlanSubCategory += $plannedBudget;
+                                                $totalActCategory += $actualSpent;
+                                                $totalPlanCategory += $plannedBudget;
+                                            @endphp
+
+                                            <tr>
+                                                <td class="text-left" style="padding-left: 40px;">
+                                                    {{ $description->description_text }}</td>
+                                                <td>Rp {{ number_format($actualSpent, 2, ',', '.') }}</td>
+                                                <td>Rp {{ number_format($plannedBudget, 2, ',', '.') }}</td>
+                                                <td>Rp {{ number_format($variance, 2, ',', '.') }}</td>
+                                                <td>{{ number_format($percentage, 2) }}%</td>
+                                                <td>{{ $remarks }}</td>
+                                            </tr>
+                                        @endforeach
+
+                                        <!-- Total Subkategori -->
+                                        <tr style="background-color: #c8e6c9; color: #256029;">
+                                            <td class="text-left"><strong>TOTAL
+                                                    {{ $subCategory->sub_category_name }}</strong></td>
+                                            <td>Rp {{ number_format($totalActSubCategory, 2, ',', '.') }}</td>
+                                            <td>Rp {{ number_format($totalPlanSubCategory, 2, ',', '.') }}</td>
+                                            <td>Rp
+                                                {{ number_format($totalPlanSubCategory - $totalActSubCategory, 2, ',', '.') }}
+                                            </td>
+                                            <td>{{ $totalPlanSubCategory > 0 ? number_format(($totalActSubCategory / $totalPlanSubCategory) * 100, 2) : 0 }}%
+                                            </td>
+                                            <td></td>
+                                        </tr>
+
+                                        <!-- Pemisah antar subkategori -->
                                         <tr>
-                                            <td class="text-left" style="padding-left: 40px;">
-                                                {{ $description->description_text }}</td>
-                                            <td>Rp {{ number_format($actualSpent, 2, ',', '.') }}</td>
-                                            <td>Rp {{ number_format($plannedBudget, 2, ',', '.') }}</td>
-                                            <td>Rp {{ number_format($variance, 2, ',', '.') }}</td>
-                                            <td>{{ number_format($percentage, 2) }}%</td>
-                                            <td>{{ $remarks }}</td>
+                                            <td colspan="6" class="bg-light" style="height: 5px;"></td>
                                         </tr>
                                     @endforeach
 
-                                    <!-- Total Subkategori -->
-                                    <tr style="background-color: #c8e6c9; color: #256029;">
-                                        <td class="text-left"><strong>TOTAL {{ $subCategory->sub_category_name }}</strong>
+                                    <!-- Total Kategori -->
+                                    <tr style="background-color: #f8bbd0; color: #880e4f;">
+                                        <td class="text-left"><strong>TOTAL {{ $category->category_name }}</strong></td>
+                                        <td>Rp {{ number_format($totalActCategory, 2, ',', '.') }}</td>
+                                        <td>Rp {{ number_format($totalPlanCategory, 2, ',', '.') }}</td>
+                                        <td>Rp {{ number_format($totalPlanCategory - $totalActCategory, 2, ',', '.') }}
                                         </td>
-                                        <td>Rp {{ number_format($totalActSubCategory, 2, ',', '.') }}</td>
-                                        <td>Rp {{ number_format($totalPlanSubCategory, 2, ',', '.') }}</td>
-                                        <td>Rp
-                                            {{ number_format($totalPlanSubCategory - $totalActSubCategory, 2, ',', '.') }}
-                                        </td>
-                                        <td>{{ $totalPlanSubCategory > 0 ? number_format(($totalActSubCategory / $totalPlanSubCategory) * 100, 2) : 0 }}%
+                                        <td>{{ $totalPlanCategory > 0 ? number_format(($totalActCategory / $totalPlanCategory) * 100, 2) : 0 }}%
                                         </td>
                                         <td></td>
                                     </tr>
 
-                                    <!-- Pemisah antar subkategori -->
+                                    <!-- Pemisah antar kategori -->
                                     <tr>
-                                        <td colspan="6" class="bg-light" style="height: 5px;"></td>
+                                        <td colspan="6" class="bg-light" style="height: 10px;"></td>
                                     </tr>
                                 @endforeach
-
-                                <!-- Total Kategori -->
-                                <tr style="background-color: #f8bbd0; color: #880e4f;">
-                                    <td class="text-left"><strong>TOTAL {{ $category->category_name }}</strong></td>
-                                    <td>Rp {{ number_format($totalActCategory, 2, ',', '.') }}</td>
-                                    <td>Rp {{ number_format($totalPlanCategory, 2, ',', '.') }}</td>
-                                    <td>Rp {{ number_format($totalPlanCategory - $totalActCategory, 2, ',', '.') }}</td>
-                                    <td>{{ $totalPlanCategory > 0 ? number_format(($totalActCategory / $totalPlanCategory) * 100, 2) : 0 }}%
-                                    </td>
-                                    <td></td>
-                                </tr>
-
-                                <!-- Pemisah antar kategori -->
-                                <tr>
-                                    <td colspan="6" class="bg-light" style="height: 10px;"></td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
+                            </tbody>
+                        </table>
+                    @else
+                        <!-- Tampilkan pesan jika tidak ada data -->
+                        <div class="d-flex justify-content-center mt-3">
+                            <div class="alert alert-warning text-center w-75" role="alert">
+                                <span>Data for {{ $selectedMonth }} {{ $selectedYear }} is not available.</span>
+                            </div>
+                        </div>
+                    @endif
                 </div>
             </div>
-
         </div>
     </section>
+@endsection
+
+@section('styles')
+    <style>
+        .disabled-link {
+            pointer-events: none;
+            opacity: 0.5;
+        }
+    </style>
 @endsection

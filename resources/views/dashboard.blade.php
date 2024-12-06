@@ -317,8 +317,14 @@
                                     <input type="text" class="form-control form-control-m" id="nik"
                                         name="nik" value="{{ Auth::user()->nik }}" required>
                                 </div>
-
-                                <div class="form-group pt-2">
+                                <div class="form-group">
+                                    <label for="password">Password <span class="text-danger">*</span></label>
+                                    <input type="password" class="form-control form-control-m" id="password"
+                                        name="password">
+                                    <small class="form-text text-muted">Leave blank if you don't want to change the
+                                        password</small>
+                                </div>
+                                <div class="form-group">
                                     <label for="phone">Phone</label>
                                     <input type="tel" class="form-control form-control-m" id="phone"
                                         name="phone" value="{{ Auth::user()->phone }}">
@@ -328,13 +334,7 @@
                                     <input type="email" class="form-control form-control-m" id="email"
                                         name="email" value="{{ Auth::user()->email }}">
                                 </div>
-                                <div class="form-group">
-                                    <label for="password">Password <span class="text-danger">*</span></label>
-                                    <input type="password" class="form-control form-control-m" id="password"
-                                        name="password">
-                                    <small class="form-text text-muted">Leave blank if you don't want to change the
-                                        password</small>
-                                </div>
+
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">

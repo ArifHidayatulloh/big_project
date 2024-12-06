@@ -24,7 +24,6 @@
         <div class="container-fluid">
             <form action="/control-budget/budget_plan_add" method="post">
                 @csrf
-
                 <!-- Pilihan untuk bulan menggunakan checkbox -->
                 <section class="content pt-2">
                     <div class="card">
