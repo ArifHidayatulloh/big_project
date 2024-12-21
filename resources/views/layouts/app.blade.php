@@ -37,8 +37,6 @@
     {{-- ---------- End of Admin LTE -------- --}}
 
     <link rel="shortcut icon" href="{{ asset('assets/images/LOGO_KKI.png') }}" type="image/x-icon">
-    <!-- Select2 CSS -->
-
 
     <style>
         .table-hover tbody tr:hover {
@@ -154,6 +152,8 @@
     <!-- AdminLTE App -->
     <script src="{{ asset('lte/dist/js/adminlte.js') }}"></script>
     {{-- -------- End of Admin LTE --------- --}}
+
+
 
 </body>
 

@@ -13,9 +13,14 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('categories', function (Blueprint $table) {
+        Schema::create('sipils', function (Blueprint $table) {
             $table->id();
-            $table->string('category_name');
+            $table->string('sr_no',50);
+            $table->string('jo_no',50);
+            $table->string('project_name');
+            $table->string('pic');
+            $table->date('start_date');
+            $table->integer('progress_percentage')->default(0);
             $table->timestamps();
         });
     }
@@ -27,6 +32,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('categories');
+        Schema::dropIfExists('sipils');
     }
 };

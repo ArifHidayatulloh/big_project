@@ -23,7 +23,8 @@ return new class extends Migration
             $table->enum('status', ['On Progress', 'Done', 'Outstanding', 'Requested', 'Rejected']);
             $table->timestamp('complete_date')->nullable();
             $table->text('status_comment')->nullable();
-            $table->text('rejection_reason')->nullable();
+            $table->enum('request_status',['Requested','Rejected','Approved'])->nullable();
+            $table->text('reject_reason')->nullable();
             $table->integer('is_priority'); // Menandakan apakah ini masuk ke skala prioritas
             $table->integer('score')->nullable(); // Bobot penilaian
             $table->foreignId('created_by')->constrained('users');

@@ -39,8 +39,8 @@
                                     <strong>Status</strong>
                                     <p>{{ $item->status }}
                                         @if ($item->status == 'Rejected')
-                                            <a href="#" class="btn rounded-circle btn-sm btn-danger" data-toggle="modal"
-                                                data-target="#rejectReasonModal">
+                                            <a href="#" class="btn rounded-circle btn-sm btn-danger"
+                                                data-toggle="modal" data-target="#rejectReasonModal">
                                                 <i class="fas fa-question"></i>
                                             </a>
                                         @endif
@@ -87,11 +87,56 @@
                                                         <p class="ml-3" style="white-space: pre-wrap;">{{ $updatePic->update }}</p>
                                                         @if ($updatePic->pdf_file)
                                                             <p class="mb-0"><strong>File:</strong>
-                                                                <a href="{{ asset('storage/' . $updatePic->pdf_file) }}"
-                                                                    target="_blank">Download PDF</a>
+                                                                <a href="#" class="btn btn-primary btn-sm shadow-sm"
+                                                                    data-toggle="modal"
+                                                                    data-target="#pdfModal{{ $updatePic->id }}"><i
+                                                                        class="fas fa-paperclip"></i></a>
                                                             </p>
+                                                            {{-- PDF View Modal --}}
+                                                            <div class="modal fade" id="pdfModal{{ $updatePic->id }}"
+                                                                tabindex="-1" role="dialog"
+                                                                aria-labelledby="pdfModalLabel{{ $updatePic->id }}"
+                                                                aria-hidden="true">
+                                                                <div class="modal-dialog modal-lg" role="document">
+                                                                    <div class="modal-content rounded-3">
+                                                                        <div class="modal-header bg-primary text-white">
+                                                                            <h5 class="modal-title"
+                                                                                id="pdfModalLabel{{ $updatePic->id }}">
+                                                                                Attachment
+                                                                                Viewer</h5>
+                                                                            <button type="button" class="close"
+                                                                                data-dismiss="modal" aria-label="Close">
+                                                                                <span aria-hidden="true">&times;</span>
+                                                                            </button>
+                                                                        </div>
+                                                                        <div class="modal-body p-4">
+                                                                            <!-- PDF Viewer -->
+                                                                            <div
+                                                                                class="embed-responsive embed-responsive-16by9">
+                                                                                <iframe
+                                                                                    src="{{ asset('storage/' . $updatePic->pdf_file) }}"
+                                                                                    class="embed-responsive-item"
+                                                                                    width="100%" height="500px"
+                                                                                    allow="fullscreen"></iframe>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="modal-footer">
+                                                                            <button type="button" class="btn btn-secondary"
+                                                                                data-dismiss="modal">Close</button>
+                                                                            <!-- Optionally you can add a download button -->
+                                                                            <a href="{{ asset('storage/' . $updatePic->pdf_file) }}"
+                                                                                class="btn btn-primary" download>
+                                                                                <i class="fas fa-download"></i> Download PDF
+                                                                            </a>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
                                                         @endif
                                                         <div class="mt-2 d-flex justify-content-between align-item-center">
+                                                            @if (Auth::user()->id == $item->pic)
+                                                            @if ($item->status != 'Done')
+
                                                             <div class="text-left">
                                                                 <a href="/working-list/editUpdatePIC/{{ $updatePic->id }}"
                                                                     class="btn btn-sm btn-warning"><i
@@ -102,8 +147,10 @@
                                                                     onclick="return confirm('Are you sure you want to delete this update?')"><i
                                                                         class="fas fa-trash-alt"></i> Delete</a>
                                                             </div>
+                                                            @endif
+                                                            @endif
                                                             <!-- Update Info Positioned to the Right -->
-                                                            <div class="text-right">
+                                                            <div class="text-right ml-auto">
                                                                 <span class="text-sm">Update by:
                                                                     {{ $updatePic->updator->name }}</span><br>
                                                                 <span
@@ -118,8 +165,10 @@
                                             @endforelse
                                         </div>
                                         @if (Auth::user()->id == $item->pic)
+                                        @if ($item->status != 'Done')
                                         <a href="/working-list/updatePIC/{{ $comment->id }}"
                                             class="btn btn-sm btn-primary mt-3 color-white">[+] Add Update</a>
+                                        @endif
                                         @endif
                                     </li>
                                 @empty
@@ -131,27 +180,30 @@
 
                     <!-- Action buttons -->
                     <div class="d-flex justify-content-between mt-5">
-                        <div>
-                            <a href="/working-list/edit/{{ $item->id }}" class="btn btn-warning">
-                                <i class="fas fa-edit"></i> Edit
-                            </a>
-                            <a href="/working-list/destroy/{{ $item->id }}" class="btn btn-danger"
-                                onclick="return confirm('Are you sure you want to delete this item?')">
-                                <i class="fas fa-trash-alt"></i> Delete
-                            </a>
-                        </div>
+                        @if ($item->created_by == Auth::user()->id)
+                            <div>
+                                <a href="/working-list/edit/{{ $item->id }}" class="btn btn-warning">
+                                    <i class="fas fa-edit"></i> Edit
+                                </a>
+                                <a href="/working-list/destroy/{{ $item->id }}" class="btn btn-danger"
+                                    onclick="return confirm('Are you sure you want to delete this item?')">
+                                    <i class="fas fa-trash-alt"></i> Delete
+                                </a>
+                            </div>
+                        @endif
+
 
                         @if (Auth::user()->id == $item->pic)
-                        @if ($item->request_status == 'Approved' || $item->status == 'Done')
-                        @else
-                            <form action="/working-list/requestActionPIC/{{ $item->id }}" method="post">
-                                @csrf
-                                <button class="btn btn-info" type="submit"
-                                    onclick="return confirm('Do you want to request an action?')">
-                                    <i class="fas fa-paper-plane"></i> Request Action
-                                </button>
-                            </form>
-                        @endif
+                            @if ($item->request_status == 'Approved' || $item->status == 'Done')
+                            @else
+                                <form action="/working-list/requestActionPIC/{{ $item->id }}" method="post">
+                                    @csrf
+                                    <button class="btn btn-info" type="submit"
+                                        onclick="return confirm('Do you want to request an action?')">
+                                        <i class="fas fa-paper-plane"></i> Request Action
+                                    </button>
+                                </form>
+                            @endif
                         @endif
                     </div>
 
@@ -163,8 +215,8 @@
     </section>
 
     <!-- Modal untuk Input Reject Reason -->
-    <div class="modal fade" id="rejectReasonModal" tabindex="-1" role="dialog" aria-labelledby="rejectReasonModalLabel"
-        aria-hidden="true">
+    <div class="modal fade" id="rejectReasonModal" tabindex="-1" role="dialog"
+        aria-labelledby="rejectReasonModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">

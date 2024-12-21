@@ -49,7 +49,7 @@ class WorkingListController extends Controller
 
         // Ambil data dengan relasi
         $workingLists = $query->with(['commentDepheads.updatePics', 'department', 'picUser'])
-            ->paginate(10)
+            ->paginate(25)
             ->appends($request->all());
 
         // Perbarui status komentar
@@ -219,8 +219,6 @@ class WorkingListController extends Controller
             ->orderBy('name', 'asc')
             ->get();
     }
-
-
 
     function show($id)
     {
@@ -535,9 +533,17 @@ class WorkingListController extends Controller
         return redirect("/working-list/$workingList->id")->with('success', 'Request for approval has been sent. ');
     }
 
-    function request_approve()
+    function request_approve(Request $request)
     {
-        $workingLists = WorkingList::where('request_status', 'Requested')->paginate(20);
+        $user_id = Auth::user()->id;
+        $pengurus = Auth::user()->role == 1;
+        $gm = Auth::user()->role == 2;
+        if($gm){
+            $workingLists = WorkingList::where('request_status', 'Requested')->paginate(20)->appends($request->all());
+        }else{
+            $departmentIds = DepartmenUser::where('user_id', $user_id)->pluck('unit_id');
+            $workingLists = WorkingList::where('request_status', 'Requested')->whereIn('unit_id',$departmentIds)->paginate(20)->appends($request->all());
+        }
 
         return view('working_list.request_page', compact('workingLists'));
     }
@@ -570,7 +576,7 @@ class WorkingListController extends Controller
             'status' => $status,
             'score' => $score,
             'status_comment' => $validatedData['status_comment'], // Simpan status comment
-            'request_status' => 'Approved', 
+            'request_status' => 'Approved',
             'approved_by' => auth()->id(),
         ]);
         // Kirim email ke PIC

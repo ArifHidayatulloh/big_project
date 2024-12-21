@@ -15,7 +15,9 @@ return new class extends Migration
     {
         Schema::create('descriptions', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('cost_review_id')->constrained('cost_reviews')->onDelete('cascade');
             $table->foreignId('sub_category_id')->constrained('sub_categories')->onDelete('cascade');
+            $table->foreignId('description_grouping_id')->constrained('description_grouping')->onDelete('cascade');
             $table->text('description_text');
             $table->timestamps();
         });

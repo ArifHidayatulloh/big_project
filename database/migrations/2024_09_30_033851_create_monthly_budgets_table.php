@@ -15,6 +15,7 @@ return new class extends Migration
     {
         Schema::create('monthly_budgets', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('cost_review_id')->constrained('cost_reviews')->onDelete('cascade');
             $table->foreignId('description_id')->constrained('descriptions')->onDelete('cascade');
             $table->decimal('planned_budget', 15, 2)->nullable();
             $table->string('month');

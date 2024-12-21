@@ -79,9 +79,51 @@
                                                         <p class="ml-3">{{ $updatePic->update }}</p>
                                                         @if ($updatePic->pdf_file)
                                                             <p class="mb-0"><strong>File:</strong>
-                                                                <a href="{{ asset('storage/' . $updatePic->pdf_file) }}"
-                                                                    target="_blank">Download PDF</a>
+                                                                <a href="#" class="btn btn-primary btn-sm shadow-sm"
+                                                                    data-toggle="modal"
+                                                                    data-target="#pdfModal{{ $updatePic->id }}"><i
+                                                                        class="fas fa-paperclip"></i></a>
                                                             </p>
+                                                            {{-- PDF View Modal --}}
+                                                            <div class="modal fade" id="pdfModal{{ $updatePic->id }}"
+                                                                tabindex="-1" role="dialog"
+                                                                aria-labelledby="pdfModalLabel{{ $updatePic->id }}"
+                                                                aria-hidden="true">
+                                                                <div class="modal-dialog modal-lg" role="document">
+                                                                    <div class="modal-content rounded-3">
+                                                                        <div class="modal-header bg-primary text-white">
+                                                                            <h5 class="modal-title"
+                                                                                id="pdfModalLabel{{ $updatePic->id }}">
+                                                                                Attachment
+                                                                                Viewer</h5>
+                                                                            <button type="button" class="close"
+                                                                                data-dismiss="modal" aria-label="Close">
+                                                                                <span aria-hidden="true">&times;</span>
+                                                                            </button>
+                                                                        </div>
+                                                                        <div class="modal-body p-4">
+                                                                            <!-- PDF Viewer -->
+                                                                            <div
+                                                                                class="embed-responsive embed-responsive-16by9">
+                                                                                <iframe
+                                                                                    src="{{ asset('storage/' . $updatePic->pdf_file) }}"
+                                                                                    class="embed-responsive-item"
+                                                                                    width="100%" height="500px"
+                                                                                    allow="fullscreen"></iframe>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="modal-footer">
+                                                                            <button type="button" class="btn btn-secondary"
+                                                                                data-dismiss="modal">Close</button>
+                                                                            <!-- Optionally you can add a download button -->
+                                                                            <a href="{{ asset('storage/' . $updatePic->pdf_file) }}"
+                                                                                class="btn btn-primary" download>
+                                                                                <i class="fas fa-download"></i> Download PDF
+                                                                            </a>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
                                                         @endif
                                                         <div class="mt-2 d-flex justify-content-end align-item-center">
                                                             <!-- Update Info Positioned to the Right -->

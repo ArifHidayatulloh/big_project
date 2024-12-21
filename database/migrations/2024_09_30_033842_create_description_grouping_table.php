@@ -13,9 +13,10 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('categories', function (Blueprint $table) {
+        Schema::create('description_grouping', function (Blueprint $table) {
             $table->id();
-            $table->string('category_name');
+            $table->foreignId('sub_category_id')->constrained('sub_categories')->onDelete('cascade');
+            $table->string('name');
             $table->timestamps();
         });
     }
@@ -27,6 +28,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('categories');
+        Schema::dropIfExists('description_grouping');
     }
 };

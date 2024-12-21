@@ -16,6 +16,10 @@ return new class extends Migration
         Schema::create('actuals', function (Blueprint $table) {
             $table->id();
             $table->foreignId('monthly_budget_id')->constrained('monthly_budgets')->onDelete('cascade');
+            $table->date('date');
+            $table->string('source');
+            $table->string('no_source');
+            $table->text('description');
             $table->decimal('actual_spent', 15, 2)->nullable();
             $table->text('remarks')->nullable();
             $table->timestamps();

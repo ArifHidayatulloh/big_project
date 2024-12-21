@@ -6,6 +6,7 @@ use App\Http\Controllers\UnitController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WorkingListController;
 use App\Http\Controllers\BudgetController;
+use App\Http\Controllers\CostReviewController;
 use App\Http\Controllers\ExportController;
 use App\Http\Controllers\PaymentScheduleController;
 use Illuminate\Support\Facades\Route;
@@ -92,29 +93,6 @@ Route::group(['middleware' => 'auth'], function () {
     });
     // End of Working List
 
-    // Control Budget
-    Route::controller(BudgetController::class)->prefix('control-budget')->group(function () {
-        Route::get('/', 'index');
-        Route::post('/store_cost_review', 'store_cost_review');
-        Route::post('/update_cost_review/{id}', 'update_cost_review');
-        Route::get('/destroy_cost_review/{id}', 'destroy_cost_review');
-        Route::get('/{id}','show');
-        Route::post('/storeCategory', 'storeCategory');
-        Route::post('/storeSubcategory', 'storeSubcategory');
-        Route::post('/storeDescription', 'storeDescription');
-        Route::get('/planned_budget/{costReview}', 'planned_budget');
-        Route::post('/budget_plan_add','plan_budget');
-        Route::get('/review_cost/{costReviewId}', 'review_cost');
-        Route::get('/individual_update_page/{id}/{month}/{year}', 'individualUpdatePage');
-        Route::post('/individual_update/{id}/{month}/{year}', 'individualUpdate');
-
-        // Route admin unit
-        Route::get('/actual/{id}','actual');
-        Route::get('/actual/details/{id}','actual_detail');
-
-    });
-    // End of Control Budget
-
     // Payment Schedule
     Route::controller(PaymentScheduleController::class)->prefix('payment_schedule')->group(function(){
         Route::get('/', 'index');
@@ -129,10 +107,56 @@ Route::group(['middleware' => 'auth'], function () {
     });
     // End of Payment Schedule
 
+
+    // Cost review controller
+    Route::controller(CostReviewController::class)->prefix('cost-review')->group(function(){
+        Route::get('/','index');
+        Route::post('/store-cost-review','store_cost_review');
+        Route::post('/update-cost-review/{id}','update_costreview');
+        Route::get('/destroy-cost-review/{id}','destroy_cost_review');
+        Route::get('/{id}','show');
+        Route::get('/{id}/period','show_period');
+    });
+    // End of cost review
+
+    // Category
+    Route::controller(CostReviewController::class)->prefix('category')->group(function(){
+        Route::get('/','index_category');
+        Route::post('/store-category','store_category');
+        Route::post('/store-subcategory','store_subcategory');
+        Route::post('/store-group','store_description_group');
+        Route::post('/update-category/{id}','update_category');
+        Route::post('/update-subcategory/{id}','update_subcategory');
+        Route::post('/update-group/{id}','update_description_group');
+        Route::get('/destroy-category/{id}','destroy_category');
+        Route::get('/destroy-subcategory/{id}','destroy_subcategory');
+        Route::get('/destroy-group/{id}','destroy_description_group');
+    });
+    // End of Category
+
+    // Description
+    Route::controller(CostReviewController::class)->prefix('description')->group(function(){
+        Route::get('/{id}','index_description');
+        Route::post('/store-description','store_description');
+        Route::post('/update-description/{id}','update_description');
+        Route::get('/destroy-description/{id}','destroy_description');
+    });
+    // End of Description
+
+    // Monthly budget
+    Route::controller(CostReviewController::class)->prefix('budget')->group(function(){
+        Route::get('/{id}','index_monthly_budget');
+        Route::post('/store','store_budget');
+        Route::get('/edit/{id}/{month}/{year}', 'edit_budget');
+        Route::post('/update','update_budget');
+    });
+    // End of monthly budget
+
     // Export
     Route::controller(ExportController::class)->prefix('export')->group(function (){
         Route::get('/working_list', 'excel_working_list');
         Route::get('/payment_supplier', 'payment_supplier');
+        Route::get('/cost-review','cost_review');
     });
     // End of Export
 });

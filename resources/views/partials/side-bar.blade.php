@@ -70,13 +70,40 @@
                                 </a>
                             </li>
 
-                            <li class="nav-item">
-                                <a href="/need_approval"
-                                    class="nav-link {{ request()->is('need_approval') ? 'active' : '' }}">
-                                    <i class="far fa-circle nav-icon"></i>
-                                    <p>Need Approval <span class="badge badge-danger">{{ $count_request }}</span></p>
-                                </a>
-                            </li>
+
+
+                            @if (Auth::user()->role == 1 || Auth::user()->role == 2)
+                                @php
+                                    if (Auth::user()->role == 1) {
+                                        $count_request_department = WorkingList::where('status', 'Requested')->count();
+                                    } else {
+                                        $departmentIds = \App\Models\DepartmenUser::where(
+                                            'user_id',
+                                            '=',
+                                            Auth::user()->id,
+                                        )->pluck('unit_id');
+
+                                        if ($departmentIds->isNotEmpty()) {
+                                            $count_request_department = WorkingList::whereIn(
+                                                'department_id',
+                                                $departmentIds,
+                                            )
+                                                ->where('status', 'Requested')
+                                                ->count();
+                                        } else {
+                                            $count_request_department = 0; // Jika tidak ada departmentIds, set ke 0
+                                        }
+                                    }
+                                @endphp
+                                <li class="nav-item">
+                                    <a href="/need_approval"
+                                        class="nav-link {{ request()->is('need_approval') ? 'active' : '' }}">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Need Approval <span
+                                                class="badge badge-danger">{{ $count_request_department }}</span></p>
+                                    </a>
+                                </li>
+                            @endif
                         </ul>
                     </li>
                 @endif
@@ -85,20 +112,19 @@
                     <!-- Cost Review Section -->
                     <li class="nav-header">COST REVIEW</li>
                     <li class="nav-item">
-                        <a href="/control-budget"
-                            class="nav-link {{ request()->is('control-budget*') ? 'active' : '' }}">
+                        <a href="/cost-review"
+                            class="nav-link {{ request()->is('cost-review*') ? 'active' : '' }}">
                             <i class="nav-icon fas fa-money-bill-wave"></i>
                             <p>Departments Budgets</p>
                         </a>
                     </li>
                 @endif
 
-                @if (Auth::user()->access_control_budget == true)
+                @if (Auth::user()->access_payment_schedule == true)
                     <!-- KKI Mart Section -->
                     <li class="nav-header">KKI MART</li>
                     <li class="nav-item {{ request()->is('payment_schedule*') ? 'menu-is-opening menu-open' : '' }}">
-                        <a href="#"
-                            class="nav-link {{ request()->is('payment_schedule*')? 'active' : '' }}">
+                        <a href="#" class="nav-link {{ request()->is('payment_schedule*') ? 'active' : '' }}">
                             <i class="nav-icon fas fa-calendar-alt"></i>
                             <p>Payment Schedule <i class="right fas fa-angle-left"></i></p>
                         </a>

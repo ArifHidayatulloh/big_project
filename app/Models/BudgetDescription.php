@@ -11,8 +11,16 @@ class BudgetDescription extends Model
     protected $table = 'descriptions';
     protected $guarded = ['id'];
 
+    public function cost_review(){
+        return $this->belongsTo(CostReview::class, 'cost_review_id','id');
+    }
+
     public function subcategory(){
         return $this->belongsTo(BudgetSubcategory::class, 'sub_category_id','id');
+    }
+
+    public function grouping(){
+        return $this->belongsTo(BudgetDescriptionGrouping::class, 'description_grouping_id','id');
     }
 
     public function monthly_budget(){

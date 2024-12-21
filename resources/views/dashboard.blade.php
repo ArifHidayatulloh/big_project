@@ -22,6 +22,7 @@
     <!-- Main content -->
     <section class="content pb-4">
         <div class="container-fluid">
+            @if (Auth::user()->role == 1 || Auth::user()->role == 2)
             <div class="ion-group">
                 <!-- Small boxes (Stat box) -->
                 <div class="ion-group-title">ENTITY</div>
@@ -68,10 +69,11 @@
                     </div>
                 </div>
             </div>
+            @endif        
 
             <div class="ion-group">
                 <!-- Small boxes (Stat box) -->
-                <div class="ion-group-title">WORKING LISTS</div>
+                <div class="ion-group-title">WORKING LIST</div>
                 <div class="row load-animation">
                     <!-- Small Box -->
                     <div class="col-lg-3 col-6">
@@ -229,8 +231,6 @@
                     </div>
                 </div>
 
-
-
                 <!-- Charts Section -->
                 <div class="col-md-4">
                     <div class="card card-info card-outline pb-3 load-animation">
@@ -280,14 +280,9 @@
                         </div>
                     </div>
                 </div>
-            </div>
-
-            <!-- Table to display tasks -->
-
+            </div>         
         </div>
-    </section>
-
-    {{-- Modal Edit Profil --}}
+        {{-- Modal Edit Profil --}}
     <div class="modal fade" id="editProfileModal{{ Auth::user()->id }}" tabindex="-1" role="dialog"
         aria-labelledby="editProfileModal{{ Auth::user()->id }}" aria-hidden="true">
         <div class="modal-dialog modal-lg" role="document">
@@ -372,7 +367,10 @@
                 </form>
             </div>
         </div>
-    </div>
+    </div>  
+    </section>
+
+     
 @endsection
 
 

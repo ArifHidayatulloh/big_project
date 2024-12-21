@@ -15,7 +15,7 @@ return new class extends Migration
     {
         Schema::create('payment_schedules', function (Blueprint $table) {
             $table->id();
-            $table->string('number_invoice')->unique();
+            $table->string('invoice_number')->unique()->nullable();
             $table->string('supplier_name');
             $table->decimal('payment_amount', 65,2);
             $table->timestamp('purchase_date');
