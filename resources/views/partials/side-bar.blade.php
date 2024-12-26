@@ -66,7 +66,7 @@
                                 <a href="/working-list"
                                     class="nav-link {{ request()->is('working-list') ? 'active' : '' }}">
                                     <i class="far fa-circle nav-icon"></i>
-                                    <p>Resume</p>
+                                    <p>Data</p>
                                 </a>
                             </li>
 
@@ -99,8 +99,7 @@
                                     <a href="/need_approval"
                                         class="nav-link {{ request()->is('need_approval') ? 'active' : '' }}">
                                         <i class="far fa-circle nav-icon"></i>
-                                        <p>Need Approval <span
-                                                class="badge badge-danger">{{ $count_request_department }}</span></p>
+                                        <p>Need Approval <span class="badge badge-danger">{{ $count_request_department }}</span></p>
                                     </a>
                                 </li>
                             @endif
@@ -110,13 +109,31 @@
 
                 @if (Auth::user()->access_control_budget == true)
                     <!-- Cost Review Section -->
-                    <li class="nav-header">COST REVIEW</li>
-                    <li class="nav-item">
-                        <a href="/cost-review"
+                    <li class="nav-header">COST REVIEW</li>                    
+
+                    <li
+                        class="nav-item {{ request()->is('cost-review*')  ? 'menu-is-opening menu-open' : '' }}">
+                        <a href="#"
                             class="nav-link {{ request()->is('cost-review*') ? 'active' : '' }}">
                             <i class="nav-icon fas fa-money-bill-wave"></i>
-                            <p>Departments Budgets</p>
+                            <p>Department Budget <i class="right fas fa-angle-left"></i></p>
                         </a>
+                        <ul class="nav nav-treeview">
+                            <li class="nav-item">
+                                <a href="/cost-review"
+                                    class="nav-link {{ request()->is('cost-review') ? 'active' : '' }}">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <p>Budget</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="/cost-review/consolidated"
+                                    class="nav-link {{ request()->is('cost-review/consolidated') ? 'active' : '' }}">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <p>Consolidated</p>
+                                </a>
+                            </li>
+                        </ul>
                     </li>
                 @endif
 

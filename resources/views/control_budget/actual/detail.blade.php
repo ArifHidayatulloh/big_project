@@ -56,13 +56,13 @@
                             <thead class="bg-info text-white">
                                 <tr>
                                     <th>Date</th>
-                                    <th>Source</th>
                                     <th>No Source</th>
                                     <th>Description</th>
                                     <th>
-                                        <a href="?sort_column=actual_spent&sort_order={{ request('sort_order') == 'asc' ? 'desc' : 'asc' }}" class="text-white" style="text-decoration: none;">
+                                        <a href="?sort_column=actual_spent&sort_order={{ request('sort_order') == 'asc' ? 'desc' : 'asc' }}"
+                                            class="text-white" style="text-decoration: none;">
                                             Amount <i
-                                            class="fas fa-sort{{ request('sort_column') == 'actual_spent' ? (request('sort_order') == 'asc' ? '-up' : '-down') : '' }}"></i>
+                                                class="fas fa-sort{{ request('sort_column') == 'actual_spent' ? (request('sort_order') == 'asc' ? '-up' : '-down') : '' }}"></i>
                                         </a>
                                     </th>
                                     <th>Actions</th>
@@ -72,7 +72,6 @@
                                 @foreach ($monthlyBudget->actual as $actual)
                                     <tr>
                                         <td class="align-middle">{{ $actual->date }}</td>
-                                        <td>{{ $actual->source }}</td>
                                         <td>{{ $actual->no_source }}</td>
                                         <td>{{ $actual->description }}</td>
                                         <td>Rp {{ number_format($actual->actual_spent, 2, ',', '.') }}</td>
@@ -109,7 +108,7 @@
                                                 <div class="modal-footer">
                                                     <button type="button" class="btn btn-secondary"
                                                         data-dismiss="modal">Cancel</button>
-                                                    <form action="/control-budget/actual/destroy/{{ $actual->id }}"
+                                                    <form action="/actual/destroy/{{ $actual->id }}"
                                                         method="get">
                                                         @csrf
                                                         <button type="submit" class="btn btn-danger">Delete</button>
@@ -125,8 +124,7 @@
                                         aria-hidden="true">
                                         <div class="modal-dialog modal-lg" role="document">
                                             <div class="modal-content">
-                                                <form action="/control-budget/actual/update/{{ $actual->id }}"
-                                                    method="POST">
+                                                <form action="/actual/update/{{ $actual->id }}" method="POST">
                                                     @csrf
                                                     <div class="modal-header bg-primary text-white">
                                                         <h5 class="modal-title" id="editActualModalLabel">Edit Actual Record
@@ -145,14 +143,11 @@
                                                         <div class="form-group">
                                                             <label for="date">Date</label>
                                                             <input type="date" class="form-control" id="date"
-                                                                name="date" required value="{{ $actual->date }}">
-                                                        </div>
-
-                                                        <!-- Source Input -->
-                                                        <div class="form-group">
-                                                            <label for="source">Source</label>
-                                                            <input type="text" class="form-control" id="source"
-                                                                name="source" required value="{{ $actual->source }}">
+                                                                name="date" required
+                                                                value="{{ old('date', $actual->date) }}">
+                                                            @error('date')
+                                                                <div class="text-danger">{{ $message }}</div>
+                                                            @enderror
                                                         </div>
 
                                                         <!-- No Source Input -->
@@ -160,13 +155,19 @@
                                                             <label for="no_source">No Source</label>
                                                             <input type="text" class="form-control" id="no_source"
                                                                 name="no_source" required
-                                                                value="{{ $actual->no_source }}">
+                                                                value="{{ old('no_source', $actual->no_source) }}">
+                                                            @error('no_source')
+                                                                <div class="text-danger">{{ $message }}</div>
+                                                            @enderror
                                                         </div>
 
                                                         <!-- Description Input -->
                                                         <div class="form-group">
                                                             <label for="description">Description</label>
-                                                            <textarea class="form-control" id="description" name="description" rows="3" required>{{ $actual->description }}</textarea>
+                                                            <textarea class="form-control" id="description" name="description" rows="3" required>{{ old('description', $actual->description) }}</textarea>
+                                                            @error('description')
+                                                                <div class="text-danger">{{ $message }}</div>
+                                                            @enderror
                                                         </div>
 
                                                         <!-- Amount Input -->
@@ -176,16 +177,22 @@
                                                             <div class="col-sm-5">
                                                                 <input type="text" class="form-control" id="ribuan"
                                                                     name="ribuan" onkeyup="formatRibuan(this)"
-                                                                    value="{{ number_format(floor($actual->actual_spent), 0, ',', '.') }}"
+                                                                    value="{{ old('ribuan', number_format(floor($actual->actual_spent), 0, ',', '.')) }}"
                                                                     required>
+                                                                @error('ribuan')
+                                                                    <div class="text-danger">{{ $message }}</div>
+                                                                @enderror
                                                             </div>
                                                             <label for="desimal"
                                                                 class="col-sm-3 col-form-label text-lg-center">Decimal</label>
                                                             <div class="col-sm-2">
                                                                 <input type="text" class="form-control" id="desimal"
                                                                     name="desimal" maxlength="2"
-                                                                    value="{{ substr(strrchr($actual->actual_spent, '.'), 1) ?? '00' }}"
+                                                                    value="{{ old('desimal', number_format(fmod($actual->actual_spent, 1) * 100, 0, '', '') ?: '00') }}"
                                                                     required>
+                                                                @error('desimal')
+                                                                    <div class="text-danger">{{ $message }}</div>
+                                                                @enderror
                                                             </div>
                                                         </div>
                                                     </div>
@@ -204,7 +211,7 @@
                             <!-- Baris untuk total pengeluaran -->
                             <tfoot class="bg-light">
                                 <tr>
-                                    <td colspan="4" class="text-left font-weight-bold">Total Actual</td>
+                                    <td colspan="3" class="text-left font-weight-bold">Total Actual</td>
                                     <td class="font-weight-bold">Rp {{ number_format($totalSpent, 2, ',', '.') }}</td>
                                     <td></td>
                                 </tr>
@@ -216,7 +223,8 @@
                 @endif
 
                 <!-- Back to previous page -->
-                <a href="{{ url('control-budget/review_cost/'.$costReviewId.'?month='.$monthlyBudget->month.'&year='.$monthlyBudget->year) }}" class="btn btn-outline-secondary mt-3">
+                <a href="{{ url('/cost-review/' . $costReviewId  . '?year=' . $monthlyBudget->year . '&month=' . $monthlyBudget->month) }}"
+                    class="btn btn-outline-secondary mt-3">
                     <i class="fas fa-arrow-left"></i> Back
                 </a>
 
@@ -230,7 +238,7 @@
         aria-hidden="true">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
-                <form action="/control-budget/actual/store" method="POST">
+                <form action="/actual/store" method="POST">
                     @csrf
                     <div class="modal-header bg-primary text-white">
                         <h5 class="modal-title" id="addActualModalLabel">Add Actual</h5>
@@ -246,12 +254,6 @@
                         <div class="form-group">
                             <label for="source">Date</label>
                             <input type="date" class="form-control" id="date" name="date" required>
-                        </div>
-
-                        <!-- Source -->
-                        <div class="form-group">
-                            <label for="source">Source</label>
-                            <input type="text" class="form-control" id="source" name="source" required>
                         </div>
 
                         <!-- No Source -->

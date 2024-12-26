@@ -6,7 +6,7 @@
         <div class="container-fluid">
             <div class="row mb-2">
                 <div class="col-sm-6">
-                    <h1 class="m-0">{{ $costReview->review_name }}</h1>
+                    <h1 class="m-0">Review</h1>
                 </div>
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
@@ -60,8 +60,7 @@
                 <div class="card-header">
                     <h3 class="card-title">Summary</h3>
                     <div class="card-tools ml-auto">
-                        <form action="/export/cost-review" method="GET">
-                            <input type="hidden" name="cost_review_id" value="{{ $costReview->id }}">
+                        <form action="/export/cost-review-consolidated" method="GET">
                             <input type="hidden" name="years" value="{{ $selectedYear }}">
 
                             @if (is_array(request('months')))
@@ -94,68 +93,64 @@
                             @php
                                 $currentCategory = null;
                                 $currentSubcategory = null;
-                                $hasData = false; // Pastikan variabel ini diinisialisasi di luar loop
+                                $hasData = false; // Inisialisasi variabel
                             @endphp
 
-                            @if ($descriptions->isEmpty())
-                                <!-- Jika tidak ada data di $descriptions -->
-                                <tr>
-                                    <td colspan="6" class="text-center text-danger font-weight-bold">
-                                        No descriptions available for this Cost Review.
-                                    </td>
-                                </tr>
-                            @else
-                                @foreach ($descriptions as $description)
-                                    @if ($description['has_monthly_budget'])
-                                        @php $hasData = true; @endphp <!-- Set true jika ada data valid -->
+                            @foreach ($description_groups as $description)
+                                @if ($description['has_monthly_budget'])
+                                    @php
+                                        $hasData = true;
+                                    @endphp
 
-                                        @if ($currentCategory !== $description['category'])
-                                            <!-- Menampilkan Category -->
-                                            @php $currentCategory = $description['category']; @endphp
-                                            <tr>
-                                                <td colspan="6" class="font-weight-bold text-primary">
-                                                    {{ $currentCategory }}
-                                                </td>
-                                            </tr>
-                                        @endif
-
-                                        @if ($currentSubcategory !== $description['subcategory'])
-                                            <!-- Menampilkan Subcategory -->
-                                            @php $currentSubcategory = $description['subcategory']; @endphp
-                                            <tr>
-                                                <td colspan="6" class="font-italic bg-light" style="padding-left: 20px;">
-                                                    {{ $currentSubcategory }}
-                                                </td>
-                                            </tr>
-                                        @endif
-
-                                        <!-- Menampilkan Description -->
+                                    @if ($currentCategory !== $description['category'])
+                                        @php
+                                            $currentCategory = $description['category'];
+                                        @endphp
                                         <tr>
-                                            <td style="padding-left: 40px;">{{ $description['description'] ?? 'N/A' }}</td>
-                                            <td class="text-right">
-                                                {{ number_format($description['actual_spent'], 2, ',', '.') }}
+                                            <td colspan="6" class="font-weight-bold text-primary">
+                                                {{ $currentCategory }}
                                             </td>
-                                            <td class="text-right">
-                                                {{ number_format($description['planned_budget'], 2, ',', '.') }}
-                                            </td>
-                                            <td class="text-right">
-                                                {{ number_format($description['variance'], 2, ',', '.') }}
-                                            </td>
-                                            <td class="text-center">{{ number_format($description['percentage'], 2) }}%
-                                            </td>
-                                            <td>{{ $description['remarks'] }}</td>
                                         </tr>
                                     @endif
-                                @endforeach
 
-                                @if (!$hasData)
-                                    <!-- Jika semua data `monthly_budget` kosong -->
+                                    @if ($currentSubcategory !== $description['subcategory'])
+                                        @php
+                                            $currentSubcategory = $description['subcategory'];
+                                        @endphp
+                                        <tr>
+                                            <td colspan="6" class="font-italic bg-light" style="padding-left: 20px;">
+                                                {{ $currentSubcategory }}
+                                            </td>
+                                        </tr>
+                                    @endif
+
+                                    <!-- Menampilkan Description -->
                                     <tr>
-                                        <td colspan="6" class="text-center text-danger font-weight-bold">
-                                            No data available for monthly budget.
+                                        <td style="padding-left: 40px;">{{ $description['description_group'] ?? 'N/A' }}
                                         </td>
+                                        <td class="text-right">
+                                            {{ number_format($description['total_actual_spent'], 2, ',', '.') }}
+                                        </td>
+                                        <td class="text-right">
+                                            {{ number_format($description['total_planned_budget'], 2, ',', '.') }}
+                                        </td>
+                                        <td class="text-right">
+                                            {{ number_format($description['variance'], 2, ',', '.') }}
+                                        </td>
+                                        <td class="text-center">
+                                            {{ number_format($description['percentage'], 2) }}%
+                                        </td>
+                                        <td>{{ $description['remarks'] }}</td>
                                     </tr>
                                 @endif
+                            @endforeach
+
+                            @if (!$hasData)
+                                <tr>
+                                    <td colspan="6" class="text-center text-danger font-weight-bold">
+                                        No data available for monthly budget.
+                                    </td>
+                                </tr>
                             @endif
                         </tbody>
                     </table>

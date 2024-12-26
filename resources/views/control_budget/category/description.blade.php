@@ -131,6 +131,10 @@
                 </table>
             </div>
         </div>
+
+        <a href="{{ url('/cost-review/' . $costReview->id) }}" class="btn btn-outline-secondary btn-m">
+            <i class="fas fa-arrow-left"></i> Back
+        </a>
     </section>
 
     <!-- Add Description Modal -->

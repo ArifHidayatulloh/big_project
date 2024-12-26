@@ -91,7 +91,7 @@
                                             data-target="#editModal{{ $costReview->id }}">
                                             <i class="fas fa-edit"></i> Edit
                                         </button>
-                                        <a href="/control-budget/destroy_cost_review/{{ $costReview->id }}"
+                                        <a href="/cost-review/destroy-cost-review/{{ $costReview->id }}"
                                             class="btn btn-outline-danger btn-sm"
                                             onclick="return confirm('Are you sure you want to delete this item?')">
                                             <i class="fas fa-trash-alt"></i> Delete
@@ -119,7 +119,7 @@
                         <button type="button" class="btn-close bg-transparent border-0 text-lg" data-dismiss="modal"
                             aria-label="Close">&times;</button>
                     </div>
-                    <form action="/control-budget/update_cost_review/{{ $costReview->id }}" method="POST">
+                    <form action="/cost-review/update-cost-review/{{ $costReview->id }}" method="POST">
                         @csrf
                         <div class="modal-body">
                             <div class="form-group">
@@ -159,7 +159,7 @@
                     <button type="button" class="btn-close bg-transparent border-0" data-dismiss="modal"
                         aria-label="Close">&times;</button>
                 </div>
-                <form action="/control-budget/store_cost_review" method="POST">
+                <form action="/cost-review/store-cost-review" method="POST">
                     @csrf
                     <div class="modal-body">
                         <div class="form-group">

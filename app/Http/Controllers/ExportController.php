@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Exports\CostReview;
+use App\Exports\CostReviewConsolidated;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\WorkListExcel;
 use App\Exports\PaymentSupplierExcel;
 use App\Models\BudgetDescription;
+use App\Models\BudgetDescriptionGrouping;
 use App\Models\CostReview as ModelsCostReview;
 use Illuminate\Http\Request;
 
@@ -91,7 +93,72 @@ class ExportController extends Controller
 
 
         // Export using view
-        return Excel::download(new CostReview($processedDescriptions), 'cost-review.xlsx');
+        return Excel::download(new CostReview($processedDescriptions, $selectedMonths, $selectedYear), 'cost-review.xlsx');
+    }
+
+    function cost_review_consolidate(Request $request){
+        $selectedMonths = $request->input('months', []);
+        $selectedYear = $request->input('years', date('Y'));
+
+        if (empty($selectedMonths)) {
+            $selectedMonths = [date('F')];
+        }
+
+        $description_groups = BudgetDescriptionGrouping::with([
+            'subcategory.category',
+            'descriptions' => function ($query) use ($selectedYear, $selectedMonths) {
+                $query->with([
+                    'monthly_budget' => function ($query) use ($selectedYear, $selectedMonths) {
+                        $query->where('year', $selectedYear)
+                            ->whereIn('month', $selectedMonths);
+                    },
+                    'monthly_budget.actual' => function ($query) {
+                        $query->select('actual_spent', 'monthly_budget_id');
+                    }
+                ]);
+            }
+        ])->get();
+
+        $processedDescriptions = $description_groups->map(function ($description_group) use ($selectedMonths) {
+            $totalPlannedBudget = 0;
+            $totalActualSpent = 0;
+            $remarks = '-';
+            $hasMonthlyBudget = false;
+
+            foreach ($description_group->descriptions as $description) {
+                foreach ($description->monthly_budget as $monthlyBudget) {
+                    $hasMonthlyBudget = true;
+                    $totalPlannedBudget += $monthlyBudget->planned_budget ?? 0;
+
+                    foreach ($monthlyBudget->actual as $actual) {
+                        $totalActualSpent += $actual->actual_spent ?? 0;
+                        $remarks = $actual->remark ?? '-';
+                    }
+                }
+            }
+
+            $variance = $totalPlannedBudget - $totalActualSpent;
+            $percentage = $totalPlannedBudget > 0 ? ($totalActualSpent / $totalPlannedBudget) * 100 : 0;
+
+            return [
+                'category' => $description_group->subcategory->category->category_name ?? 'N/A',
+                'subcategory' => $description_group->subcategory->sub_category_name ?? 'N/A',
+                'total_planned_budget' => $totalPlannedBudget,
+                'total_actual_spent' => $totalActualSpent,
+                'variance' => $variance,
+                'percentage' => $percentage,
+                'remarks' => $remarks,
+                'has_monthly_budget' => $hasMonthlyBudget,
+                'description_group' => $description_group->name,
+                'category_id' => $description_group->subcategory->category->id,
+            ];
+        });
+
+        $processedDescriptions = $processedDescriptions->sortBy(function ($item) {
+            return $item['category_id'];
+        });
+
+        return Excel::download(new CostReviewConsolidated($processedDescriptions, $selectedMonths, $selectedYear), 'cost-review.xlsx');
     }
     // End of Cost Review
 }

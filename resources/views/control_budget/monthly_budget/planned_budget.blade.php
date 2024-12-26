@@ -80,15 +80,21 @@
                                 @forelse ($descriptions as $description)
                                     @if ($currentCategory !== ($description->subcategory->category->category_name ?? 'N/A'))
                                         <!-- Menampilkan Category -->
-                                        @php $currentCategory = $description->subcategory->category->category_name ?? 'N/A'; @endphp
+                                        @php
+                                            $currentCategory = $description->subcategory->category->category_name ?? 'N/A';
+                                        @endphp
                                         <tr>
-                                            <td colspan="2" class="font-weight-bold bg-light">{{ $currentCategory }}</td>
+                                            <td colspan="2" class="font-weight-bold bg-light">
+                                                {{ $currentCategory }}
+                                            </td>
                                         </tr>
                                     @endif
 
                                     @if ($currentSubcategory !== ($description->subcategory->sub_category_name ?? 'N/A'))
                                         <!-- Menampilkan Subcategory -->
-                                        @php $currentSubcategory = $description->subcategory->sub_category_name ?? 'N/A'; @endphp
+                                        @php
+                                            $currentSubcategory = $description->subcategory->sub_category_name ?? 'N/A';
+                                        @endphp
                                         <tr>
                                             <td colspan="2" class="font-italic" style="padding-left: 20px;">
                                                 {{ $currentSubcategory }}
@@ -98,34 +104,41 @@
 
                                     <!-- Menampilkan Description -->
                                     <tr>
-                                        <td style="padding-left: 40px;">{{ $description->description_text ?? 'N/A' }}</td>
+                                        <td style="padding-left: 40px;">
+                                            {{ $description->description_text ?? 'N/A' }}
+                                        </td>
                                         <td>
-
-                                                <div class="input-group">
-                                                    <div class="input-group-prepend">
-                                                        <strong class="input-group-text">
-                                                            Rp
-                                                        </strong>
-                                                    </div>
-                                                    <input type="text" name="planned_budget[{{ $description->id }}]"
-                                                        class="form-control amount-input" placeholder="Enter Amount">
+                                            <div class="input-group">
+                                                <div class="input-group-prepend">
+                                                    <span class="input-group-text">Rp</span>
                                                 </div>
-
+                                                <input type="text"
+                                                       name="planned_budget[{{ $description->id }}]"
+                                                       class="form-control amount-input"
+                                                       placeholder="Enter Amount">
+                                            </div>
                                         </td>
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="2" class="text-center">No descriptions available for this Cost
-                                            Review.</td>
+                                        <td colspan="2" class="text-center">
+                                            No descriptions available for this Cost Review.
+                                        </td>
                                     </tr>
                                 @endforelse
                             </tbody>
+
                         </table>
                     </div>
                 </div>
-
-                <div class="text-right mt-3">
-                    <button type="submit" class="btn btn-success">Save Budget</button>
+                <!-- Buttons Section -->
+                <div class="d-flex justify-content-between mt-4 align-items-center">
+                    <a href="{{ url()->previous() }}" class="btn btn-outline-secondary btn-m">
+                        <i class="fas fa-arrow-left"></i> Cancel
+                    </a>
+                    <button type="submit" class="btn btn-outline-success btn-m">
+                        <i class="fas fa-save"></i> Save
+                    </button>
                 </div>
             </form>
         </div>

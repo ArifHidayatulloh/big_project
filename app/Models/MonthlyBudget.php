@@ -11,6 +11,10 @@ class MonthlyBudget extends Model
     protected $table ='monthly_budgets';
     protected $guarded = ['id'];
 
+    public function cost_review(){
+        return $this->belongsTo(CostReview::class, 'cost_review_id','id');
+    }
+
     public function description(){
         return $this->belongsTo(BudgetDescription::class, 'description_id','id');
     }

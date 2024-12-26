@@ -19,4 +19,8 @@ class CostReview extends Model
     public function category(){
         return $this->hasMany(BudgetCategory::class);
     }
+
+    public function budget(){
+        return $this->belongsTo(MonthlyBudget::class);
+    }
 }

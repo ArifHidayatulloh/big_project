@@ -53,13 +53,16 @@
                                 </select>
                             </div>
 
-                            @if ($belongsToAccounting)
-                                <!-- Buttons for Add Planned and Description -->
-                                <div class="col-md-8 text-right mt-2 mt-md-auto">
-                                    <a href="/description/{{ $costReview->id }}" class="btn btn-outline-secondary">Description</a>
+                            <!-- Buttons for Add Planned and Description -->
+                            <div class="col-md-8 text-right mt-2 mt-md-auto">
+                                @if ($belongsToAccounting)
+                                    <a href="/description/{{ $costReview->id }}"
+                                        class="btn btn-outline-secondary">Description</a>
                                     <a href="/budget/{{ $costReview->id }}" class="btn btn-outline-primary">Budget Plan</a>
-                                </div>
-                            @endif
+                                @endif
+                                <a href="/cost-review/{{ $costReview->id }}/period"
+                                    class="btn btn-outline-primary">Recap</a>
+                            </div>
                         </div>
                     </form>
                     <!-- Paginate Bulan -->
@@ -144,14 +147,19 @@
                                     @endphp
 
                                     <!-- Menampilkan Description -->
-                                    <tr onclick="window.location.href='/control-budget/actual/details/{{ $monthlyBudget->id }}';"
-                                        style="cursor: pointer;">
-                                        <td style="padding-left: 40px;">{{ $description->description_text ?? 'N/A' }}</td>
-                                        <td class="text-right">{{ number_format($actualSpent, 2, ',', '.') }}</td>
-                                        <td class="text-right">{{ number_format($plannedBudget, 2, ',', '.') }}</td>
-                                        <td class="text-right">{{ number_format($var, 2, ',', '.') }}</td>
-                                        <td class="text-center">{{ $percentage }}%</td>
-                                        <td>{{ $remarks }}</td>
+                                    @if ($monthlyBudget == null)
+                                        <tr>
+                                        @else
+                                        <tr onclick="window.location.href='/actual/{{ $monthlyBudget->id }}';"
+                                            style="cursor: pointer;">
+                                    @endif
+
+                                    <td style="padding-left: 40px;">{{ $description->description_text ?? 'N/A' }}</td>
+                                    <td class="text-right">{{ number_format($actualSpent, 2, ',', '.') }}</td>
+                                    <td class="text-right">{{ number_format($plannedBudget, 2, ',', '.') }}</td>
+                                    <td class="text-right">{{ number_format($var, 2, ',', '.') }}</td>
+                                    <td class="text-center">{{ $percentage }}%</td>
+                                    <td>{{ $remarks }}</td>
                                     </tr>
                                 @empty
                                     <tr>
@@ -169,9 +177,6 @@
             </div>
         </div>
     </section>
-
-
-
 
     {{-- <!-- Main content -->
     <section class="content pb-2">

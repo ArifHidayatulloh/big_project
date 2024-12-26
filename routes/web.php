@@ -111,12 +111,15 @@ Route::group(['middleware' => 'auth'], function () {
     // Cost review controller
     Route::controller(CostReviewController::class)->prefix('cost-review')->group(function(){
         Route::get('/','index');
+        Route::get('/consolidated','show_consolidated');
         Route::post('/store-cost-review','store_cost_review');
-        Route::post('/update-cost-review/{id}','update_costreview');
+        Route::post('/update-cost-review/{id}','update_cost_review');
         Route::get('/destroy-cost-review/{id}','destroy_cost_review');
         Route::get('/{id}','show');
         Route::get('/{id}/period','show_period');
     });
+
+
     // End of cost review
 
     // Category
@@ -152,11 +155,19 @@ Route::group(['middleware' => 'auth'], function () {
     });
     // End of monthly budget
 
+    Route::controller(CostReviewController::class)->prefix('actual')->group(function(){
+        Route::get('/{id}', 'index_actual');
+        Route::post('/store','store_actual');
+        Route::post('/update/{id}', 'update_actual');
+        Route::get('/destroy/{id}', 'destroy_actual');
+    });
+
     // Export
     Route::controller(ExportController::class)->prefix('export')->group(function (){
         Route::get('/working_list', 'excel_working_list');
         Route::get('/payment_supplier', 'payment_supplier');
         Route::get('/cost-review','cost_review');
+        Route::get('/cost-review-consolidated','cost_review_consolidate');
     });
     // End of Export
 });

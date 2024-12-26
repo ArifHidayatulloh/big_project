@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\MonthlyBudget;
+use App\Models\Actual;
 use App\Models\BudgetCategory;
 use App\Models\BudgetDescription;
 use App\Models\BudgetDescriptionGrouping;
@@ -92,10 +93,10 @@ class CostReviewController extends Controller
             ->first();
 
         if ($cek) {
-            return redirect('/control-budget')->withErrors(['error' => 'Cost review already exists.']);
+            return redirect()->back()->withErrors(['error' => 'Cost review already exists.']);
         } else {
             CostReview::create($request->all());
-            return redirect('/control-budget')->with('success', 'Cost review has been successfully added.');
+            return redirect()->back()->with('success', 'Cost review has been successfully added.');
         }
     }
 
@@ -104,7 +105,7 @@ class CostReviewController extends Controller
         $cost_review = CostReview::find($id);
 
         if (!$cost_review) {
-            return redirect('/control-budget')->withErrors(['error' => 'Cost review not found.']);
+            return redirect()->back()->withErrors(['error' => 'Cost review not found.']);
         }
 
         $request->validate([
@@ -118,12 +119,12 @@ class CostReviewController extends Controller
             ->first();
 
         if ($cek) {
-            return redirect('/control-budget')->withErrors(['error' => 'Cost review already exists.']);
+            return redirect()->back()->withErrors(['error' => 'Cost review already exists.']);
         }
 
         $cost_review->update($request->all());
 
-        return redirect('/control-budget')->with('success', 'Cost review has been successfully updated.');
+        return redirect()->back()->with('success', 'Cost review has been successfully updated.');
     }
 
     function destroy_cost_review($id)
@@ -145,9 +146,13 @@ class CostReviewController extends Controller
         $descriptions = BudgetDescription::with(['monthly_budget' => function ($query) use ($selectedYear, $selectedMonth) {
             $query->where('year', $selectedYear)
                 ->where('month', $selectedMonth);
-        }])->where('cost_review_id', $costReview->id)
+        }])
+            ->where('cost_review_id', $costReview->id)
+            ->whereHas('monthly_budget', function ($query) use ($selectedYear, $selectedMonth) {
+                $query->where('year', $selectedYear)
+                    ->where('month', $selectedMonth);
+            })
             ->get();
-
 
         $years = [
             '2024',
@@ -173,15 +178,7 @@ class CostReviewController extends Controller
             'December',
         ];
 
-        $hasDataForSelectedMonth = $descriptions->pluck('subcategory')
-            ->flatten() // Rata-rata seluruh subcategory
-            ->pluck('descriptions')
-            ->flatten() // Rata-rata seluruh deskripsi
-            ->pluck('monthly_budget')
-            ->flatten() // Rata-rata seluruh monthly_budget
-            ->where('year', $selectedYear)
-            ->where('month', $selectedMonth)
-            ->isNotEmpty();
+        $hasDataForSelectedMonth = $descriptions->isNotEmpty();
 
         return view('control_budget.cost_review.review_cost', compact('costReview', 'descriptions', 'years', 'months', 'selectedMonth', 'selectedYear', 'hasDataForSelectedMonth'));
     }
@@ -216,7 +213,7 @@ class CostReviewController extends Controller
         $selectedYear = $request->input('years', date('Y'));
 
         if (empty($selectedMonths)) {
-            $selectedMonths = [date('F')]; 
+            $selectedMonths = [date('F')];
         }
 
         $costReview = CostReview::find($id);
@@ -272,6 +269,113 @@ class CostReviewController extends Controller
             'months' => $months
         ]);
     }
+
+    public function show_consolidated(Request $request)
+    {
+        $years = [
+            '2024',
+            '2025',
+            '2026',
+            '2027',
+            '2028',
+            '2029',
+        ];
+
+        $months = [
+            'January',
+            'February',
+            'March',
+            'April',
+            'May',
+            'June',
+            'July',
+            'August',
+            'September',
+            'October',
+            'November',
+            'December',
+        ];
+
+        $selectedMonths = $request->input('months', []);
+        $selectedYear = $request->input('years', date('Y'));
+
+        if (empty($selectedMonths)) {
+            $selectedMonths = [date('F')];
+        }
+
+        // Ambil description_groups beserta deskripsi dan monthly_budget terkait
+        $description_groups = BudgetDescriptionGrouping::with([
+            'subcategory.category',
+            'descriptions' => function ($query) use ($selectedYear, $selectedMonths) {
+                $query->with([
+                    'monthly_budget' => function ($query) use ($selectedYear, $selectedMonths) {
+                        $query->where('year', $selectedYear)
+                            ->whereIn('month', $selectedMonths);
+                    },
+                    'monthly_budget.actual' => function ($query) {
+                        $query->select('actual_spent', 'monthly_budget_id');
+                    }
+                ]);
+            }
+        ])->get();
+
+        // Proses deskripsi untuk tiap group
+        $processedDescriptions = $description_groups->map(function ($description_group) use ($selectedMonths) {
+            $totalPlannedBudget = 0;
+            $totalActualSpent = 0;
+            $remarks = '-';
+            $hasMonthlyBudget = false; // Flag untuk cek monthly_budget
+
+            // Pastikan menggunakan plural 'descriptions'
+            foreach ($description_group->descriptions as $description) {
+                foreach ($description->monthly_budget as $monthlyBudget) {
+                    $hasMonthlyBudget = true; // Ada data monthly_budget
+                    $totalPlannedBudget += $monthlyBudget->planned_budget ?? 0;
+
+                    foreach ($monthlyBudget->actual as $actual) {
+                        $totalActualSpent += $actual->actual_spent ?? 0;
+                        $remarks = $actual->remark ?? '-';
+                    }
+                }
+            }
+
+            $variance = $totalPlannedBudget - $totalActualSpent;
+            $percentage = $totalPlannedBudget > 0 ? ($totalActualSpent / $totalPlannedBudget) * 100 : 0;
+
+            return [
+                'category' => $description_group->subcategory->category->category_name ?? 'N/A',
+                'subcategory' => $description_group->subcategory->sub_category_name ?? 'N/A',
+                'subcategory_id' => $description_group->subcategory->id ?? null, // Tambahkan subcategory_id
+                'total_planned_budget' => $totalPlannedBudget,
+                'total_actual_spent' => $totalActualSpent,
+                'variance' => $variance,
+                'percentage' => $percentage,
+                'remarks' => $remarks,
+                'has_monthly_budget' => $hasMonthlyBudget,
+                'description_group' => $description_group->name,
+                'category_id' => $description_group->subcategory->category->id, // Tetap simpan category_id jika diperlukan
+            ];
+
+        });
+
+
+        $processedDescriptions = $processedDescriptions->sortBy([
+            ['category_id', 'asc'], // Urutkan berdasarkan category_id
+            ['subcategory_id', 'asc'] // Lalu berdasarkan subcategory_id
+        ]);
+
+
+        return view('control_budget.cost_review.consolidation', [
+            'description_groups' => $processedDescriptions,
+            'selectedMonths' => $selectedMonths,
+            'selectedYear' => $selectedYear,
+            'years' => $years,
+            'months' => $months
+        ]);
+    }
+
+
+
 
     // End of show cost review of unit
 
@@ -500,7 +604,7 @@ class CostReviewController extends Controller
     function index_monthly_budget($id)
     {
         $costReview = CostReview::find($id);
-        $descriptions = BudgetDescription::with(['subcategory.category'])->where('cost_review_id', $costReview->id)->get();
+        $descriptions = BudgetDescription::with(['subcategory.category'])->where('cost_review_id', $costReview->id)->orderBy('sub_category_id', 'asc')->get();
         $years = range(date('Y'), date('Y') + 5);
         $months = [
             'January',
@@ -516,7 +620,9 @@ class CostReviewController extends Controller
             'November',
             'December'
         ];
-
+        $desctiptions =  $descriptions->sortBy([
+            ['subcategory_id', 'asc'] // Lalu berdasarkan subcategory_id
+        ]);
         return view('control_budget.monthly_budget.planned_budget', compact('descriptions', 'costReview', 'years', 'months'));
     }
 
@@ -639,4 +745,138 @@ class CostReviewController extends Controller
 
         return redirect('/cost-review/' . $request->cost_review_id)->with('success', 'Budget has been updated successfully.');
     }
+    // End of budget
+
+    // Actual
+    private function applySorting($query, Request $request)
+    {
+        $sortColumn = $request->input('sort_column', 'created_at');
+        $sortOrder = $request->input('sort_order', 'desc');
+
+        return $query->orderBy($sortColumn, $sortOrder);
+    }
+
+    function index_actual(Request $request, $id)
+    {
+        $monthlyBudget = MonthlyBudget::with([
+            'actual' => function ($query) use ($request) {
+                $this->applySorting($query, $request);
+            },
+            'description.subcategory',
+            'cost_review'
+        ])->findOrFail($id);
+
+        $actuals = $monthlyBudget->actual;
+
+        $costReviewId = $monthlyBudget->cost_review->id;
+
+        $totalSpent = $actuals->sum('actual_spent');
+
+        return view('control_budget.actual.detail', compact('monthlyBudget', 'costReviewId', 'actuals', 'totalSpent'));
+    }
+
+    function store_actual(Request $request)
+    {
+        $request->validate([
+            'monthly_budget_id' => 'required|exists:monthly_budgets,id',
+            'date' => 'required',
+            'no_source' => 'required|string|max:255',
+            'description' => 'required|string|max:500',
+            'ribuan' => 'required|min:0',
+            'desimal' => 'required|min:0',
+        ]);
+
+        $ribuan = str_replace('.', '', $request->input('ribuan'));
+        $desimal = $request->input('desimal');
+
+        $actualSpent = $ribuan . ',' . $desimal;
+
+        $actualSpentNumeric = floatval(str_replace(',', '.', $actualSpent));
+
+        $monthlyBudget = MonthlyBudget::with('actual')->findOrFail($request->monthly_budget_id);
+
+        // Hitung total pengeluaran saat ini (actual spent) dan anggaran yang direncanakan
+        $totalSpent = $monthlyBudget->actual->sum('actual_spent');
+        $remainingBudget = $monthlyBudget->planned_budget - $totalSpent;
+
+        // Validasi apakah actual spent melebihi anggaran yang tersisa
+        if ($actualSpentNumeric > $remainingBudget) {
+            return redirect()->back()->withErrors([
+                'actual_spent' => 'The actual spent exceeds the remaining budget. Please adjust the amount.',
+            ])->withInput();
+        }
+
+        // Simpan data actual
+        Actual::create([
+            'monthly_budget_id' => $request->monthly_budget_id,
+            'date' => $request->date,
+            'no_source' => $request->no_source,
+            'description' => $request->description,
+            'actual_spent' => $actualSpentNumeric,
+        ]);
+
+        return redirect()->back()->with('success', 'Actual has been successfully planned.');
+    }
+
+    function update_actual(Request $request, $id)
+    {
+        $actual = Actual::findOrFail($id);
+
+        // Validasi input
+        $request->validate([
+            'monthly_budget_id' => 'required|exists:monthly_budgets,id',
+            'date' => 'required|date',
+            'no_source' => 'required|string|max:255',
+            'description' => 'required|string|max:500',
+            'ribuan' => 'required',
+            'desimal' => 'required',
+        ]);
+
+        // Mengambil nilai input ribuan dan desimal
+        $ribuan = str_replace('.', '', $request->input('ribuan'));
+        $desimal = $request->input('desimal');
+
+        // Menggabungkan ribuan dan desimal untuk membentuk angka desimal
+        $actualSpent = $ribuan . ',' . $desimal;
+
+        // Konversi ke format numerik (float) untuk perhitungan
+        $actualSpentNumeric = floatval(str_replace(',', '.', $actualSpent));
+
+        // Ambil data MonthlyBudget terkait
+        $monthlyBudget = MonthlyBudget::with('actual')->findOrFail($request->monthly_budget_id);
+
+        // Hitung total pengeluaran saat ini (actual spent)
+        $totalSpent = $monthlyBudget->actual->where('id', '!=', $id)->sum('actual_spent'); // Kecualikan pengeluaran yang sedang diubah
+        $remainingBudget = $monthlyBudget->planned_budget - $totalSpent;
+
+        // Validasi apakah actual spent melebihi anggaran yang tersisa
+        if ($actualSpentNumeric > $remainingBudget) {
+            return redirect()->back()->withErrors([
+                'actual_spent' => 'The actual spent exceeds the remaining budget. Please adjust the amount.',
+            ])->withInput();
+        }
+
+        // Perbarui data actual
+        $actual->update([
+            'monthly_budget_id' => $request->monthly_budget_id,
+            'date' => $request->date,
+            'source' => $request->source ?? $actual->source, // Tambahkan fallback jika `source` tidak ada
+            'no_source' => $request->no_source,
+            'description' => $request->description,
+            'actual_spent' => $actualSpentNumeric,
+        ]);
+
+        // Redirect dengan pesan sukses
+        return redirect()->back()->with('success', 'Actual has been successfully updated.');
+    }
+
+    function destroy_actual($id)
+    {
+        $actual = Actual::findOrFail($id);
+        $actual->delete();
+        return redirect()->back()->with('success', 'Actual has been successfully deleted.');
+    }
+
+    // End of Actual
+
 }

@@ -26,16 +26,13 @@
         @php
             $currentCategory = null;
             $currentSubcategory = null;
+            $hasData = false;
         @endphp
 
-        @if ($descriptions->isEmpty())
-            <tr>
-                <td colspan="7" style="text-align: center; color: red; font-weight: bold;">
-                    No descriptions available for this Cost Review.
-                </td>
-            </tr>
-        @else
-            @foreach ($descriptions as $description)
+        @foreach ($descriptions as $description)
+            @if ($description['has_monthly_budget'])
+                @php $hasData = true; @endphp
+
                 @if ($currentCategory !== $description['category'])
                     @php $currentCategory = $description['category']; @endphp
                     <tr>
@@ -56,12 +53,12 @@
 
                 <tr>
                     <td style="width: 20px;"></td>
-                    <td style="padding-left: 40px; width:300px;">{{ $description['description'] ?? 'N/A' }}</td>
+                    <td style="padding-left: 40px; width:300px;">{{ $description['description_group'] ?? 'N/A' }}</td>
                     <td style="text-align: right;">
-                        {{ number_format($description['actual_spent'], 2, ',', '.') }}
+                        {{ number_format($description['total_actual_spent'], 2, ',', '.') }}
                     </td>
                     <td style="text-align: right;">
-                        {{ number_format($description['planned_budget'], 2, ',', '.') }}
+                        {{ number_format($description['total_planned_budget'], 2, ',', '.') }}
                     </td>
                     <td style="text-align: right;">
                         {{ number_format($description['variance'], 2, ',', '.') }}
@@ -71,7 +68,15 @@
                     </td>
                     <td>{{ $description['remarks'] }}</td>
                 </tr>
-            @endforeach
+            @endif
+        @endforeach
+
+        @if (!$hasData)
+            <tr>
+                <td colspan="7" style="text-align: center; color: red; font-weight: bold;">
+                    No data available for monthly budget.
+                </td>
+            </tr>
         @endif
     </tbody>
 </table>
