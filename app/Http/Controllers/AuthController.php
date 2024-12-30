@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\CostReview;
+use App\Models\DepartmenUser;
 use App\Models\PaymentSchedule;
 use App\Models\Unit;
 use Illuminate\Http\Request;
@@ -50,17 +51,64 @@ class AuthController extends Controller
 
     function dashboard()
     {
-        $departments = Unit::query();
-        $employees = User::query();
+        $departments = Unit::all();
+        $employees = User::all();
+        $costReviews = CostReview::all();
+        $paymentSchedules = PaymentSchedule::all();
+        $role = Auth::user()->role;
+        $user_id = Auth::user()->id;
+
+        // Initialize working_lists query
         $working_lists = WorkingList::query();
-        $costReviews = CostReview::query();
-        $paymentSchedules = PaymentSchedule::query();
 
-        $workingLists = WorkingList::where('status', '!=', 'Done')->where('status', '!=', 'Outstanding')->whereBetween('deadline', [now(), now()->addDays(7)])
-            ->orderBy('deadline', 'asc')->get();
+        // Filter working_lists berdasarkan role
+        if (in_array($role, [1, 3])) {
+            $departmentIds = DepartmenUser::where('user_id', $user_id)->pluck('unit_id');
+            if ($departmentIds->isNotEmpty()) {
+                $working_lists->whereIn('unit_id', $departmentIds);
+            }
+        } elseif ($role == 2) {
+            // Akses penuh (tidak perlu filter tambahan)
+        } elseif ($role == 4) {
+            $unit_id = Auth::user()->unit_id;
+            if ($unit_id) {
+                $working_lists->where('unit_id', $unit_id);
+            } else {
+                $departmentIds = DepartmenUser::where('user_id', $user_id)->pluck('unit_id');
+                if ($departmentIds->isNotEmpty()) {
+                    $working_lists->whereIn('unit_id', $departmentIds);
+                }
+            }
+        } else {
+            $working_lists->where('pic', $user_id);
+        }
 
-        return view('dashboard', compact('departments', 'employees', 'workingLists', 'costReviews', 'paymentSchedules', 'working_lists'));
+        // Statistik working_lists
+        $workingListTotal = $working_lists->count();
+        $workingListDone = (clone $working_lists)->where('status', 'Done')->count();
+        $workingListOnProgress = (clone $working_lists)->where('status', 'On Progress')->count();
+        $workingListOverdue = (clone $working_lists)->where('status', 'Overdue')->count();
+
+        // Data untuk ditampilkan (7 hari ke depan)
+        $workingLists = (clone $working_lists)->where('status', '!=', 'Done')
+            ->where('status', '!=', 'Outstanding')
+            ->whereBetween('deadline', [now(), now()->addDays(7)])
+            ->orderBy('deadline', 'asc')
+            ->get();
+
+        return view('dashboard', compact(
+            'departments',
+            'employees',
+            'costReviews',
+            'paymentSchedules',
+            'workingListTotal',
+            'workingListDone',
+            'workingListOnProgress',
+            'workingListOverdue',
+            'workingLists'
+        ));
     }
+
 
     function edit_profile(Request $request, $id)
     {

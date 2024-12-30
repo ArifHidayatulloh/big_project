@@ -10,7 +10,7 @@
                 </div>
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item"><a href="#">Home</a></li>
+                        <li class="breadcrumb-item"><a href="#"><i class="fas fa-home"></i></a></li>
                         <li class="breadcrumb-item active">Dashboard</li>
                     </ol>
                 </div>
@@ -69,7 +69,7 @@
                     </div>
                 </div>
             </div>
-            @endif        
+            @endif
 
             <div class="ion-group">
                 <!-- Small boxes (Stat box) -->
@@ -79,7 +79,7 @@
                     <div class="col-lg-3 col-6">
                         <div class="small-box bg-info">
                             <div class="inner">
-                                <h3>{{ $working_lists->count() }}</h3>
+                                <h3>{{ $workingListTotal }}</h3>
                                 <p>Working Lists</p>
                             </div>
                             <div class="icon">
@@ -92,45 +92,40 @@
                     <div class="col-lg-3 col-6">
                         <div class="small-box bg-success">
                             <div class="inner">
-                                <h3>{{ $working_lists->where('status', 'Done')->count() }}</h3>
+                                <h3>{{ $workingListDone }}</h3>
                                 <p>Done</p>
                             </div>
                             <div class="icon">
                                 <i class="ion ion-checkmark"></i>
                             </div>
-                            <a href="#" class="small-box-footer">More Info <i
+                            <a href="/working-list" class="small-box-footer">More Info <i
                                     class="fas fa-arrow-circle-right"></i></a>
                         </div>
                     </div>
                     <div class="col-lg-3 col-6">
                         <div class="small-box bg-warning">
                             <div class="inner">
-                                <h3>{{ $working_lists->where('status', '!=', 'Done')->where('status', '!=', 'Outstanding')->count() }}
+                                <h3>{{ $workingListOnProgress }}
                                 </h3>
                                 <p>On Progress</p>
                             </div>
                             <div class="icon">
                                 <i class="ion ion-layers"></i>
                             </div>
-                            <a href="/user" class="small-box-footer">More info <i
+                            <a href="/working-list" class="small-box-footer">More info <i
                                     class="fas fa-arrow-circle-right"></i></a>
                         </div>
                     </div>
                     <div class="col-lg-3 col-6">
                         <div class="small-box bg-danger">
                             <div class="inner">
-                                <?php
-                                    use  \App\Models\WorkingList;
-
-                                    $outstanding = WorkingList::where('status','Outstanding')->count();
-                                ?>
-                                <h3>{{ $outstanding }}</h3>
+                                <h3>{{ $workingListOverdue }}</h3>
                                 <p>Overdue</p>
                             </div>
                             <div class="icon">
                                 <i class="ion ion-alert-circled"></i>
                             </div>
-                            <a href="#" class="small-box-footer">Details <i class="fas fa-arrow-circle-right"></i></a>
+                            <a href="/working-list" class="small-box-footer">Details <i class="fas fa-arrow-circle-right"></i></a>
                         </div>
                     </div>
                 </div>
@@ -280,7 +275,7 @@
                         </div>
                     </div>
                 </div>
-            </div>         
+            </div>
         </div>
         {{-- Modal Edit Profil --}}
     <div class="modal fade" id="editProfileModal{{ Auth::user()->id }}" tabindex="-1" role="dialog"
@@ -367,10 +362,10 @@
                 </form>
             </div>
         </div>
-    </div>  
+    </div>
     </section>
 
-     
+
 @endsection
 
 

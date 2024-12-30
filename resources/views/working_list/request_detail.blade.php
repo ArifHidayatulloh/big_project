@@ -148,17 +148,34 @@
                         </div>
                     </div>
 
-                    <!-- Action buttons -->
-                    <div class="d-flex justify-content-between mt-5">
-                        <div>
-                            <a href="#" class="btn btn-success" data-toggle="modal" data-target="#approvalModal">
-                                <i class="fas fa-thumbs-up"></i> Approve
-                            </a>
-                            <a href="#" class="btn btn-danger" data-toggle="modal" data-target="#rejectModal">
-                                <i class="fas fa-thumbs-down"></i> Reject
-                            </a>
+                    @if (Auth::user()->role == 1)
+                        @if ($item->creator == Auth::user()->id)
+                            <!-- Action buttons -->
+                            <div class="d-flex justify-content-between mt-5">
+                                <div>
+                                    <a href="#" class="btn btn-success" data-toggle="modal"
+                                        data-target="#approvalModal">
+                                        <i class="fas fa-thumbs-up"></i> Approve
+                                    </a>
+                                    <a href="#" class="btn btn-danger" data-toggle="modal" data-target="#rejectModal">
+                                        <i class="fas fa-thumbs-down"></i> Reject
+                                    </a>
+                                </div>
+                            </div>
+                        @endif
+                    @else
+                        <!-- Action buttons -->
+                        <div class="d-flex justify-content-between mt-5">
+                            <div>
+                                <a href="#" class="btn btn-success" data-toggle="modal" data-target="#approvalModal">
+                                    <i class="fas fa-thumbs-up"></i> Approve
+                                </a>
+                                <a href="#" class="btn btn-danger" data-toggle="modal" data-target="#rejectModal">
+                                    <i class="fas fa-thumbs-down"></i> Reject
+                                </a>
+                            </div>
                         </div>
-                    </div>
+                    @endif
 
                 </div>
             </div>
@@ -167,8 +184,8 @@
 
 
             <!-- Modal untuk Input Approval -->
-            <div class="modal fade" id="approvalModal" tabindex="-1" role="dialog" aria-labelledby="approvalModalLabel"
-                aria-hidden="true">
+            <div class="modal fade" id="approvalModal" tabindex="-1" role="dialog"
+                aria-labelledby="approvalModalLabel" aria-hidden="true">
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
                         <div class="modal-header">

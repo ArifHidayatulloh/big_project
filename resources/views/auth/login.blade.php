@@ -5,133 +5,172 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>LOGIN KKI OPERATIONAL</title>
+    <title>Kopkar Indocement | Login</title>
 
-    {{-- -------- Admin LTE -------- --}}
-    <!-- Google Font: Source Sans Pro -->
-    <link rel="stylesheet"
-        href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+    <!-- Google Font: Poppins -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+
     <!-- Font Awesome -->
-    <link rel="stylesheet" href="{{ asset('lte/plugins/fontawesome-free/css/all.min.css') }}">
-    <!-- Theme style -->
-    <link rel="stylesheet" href="{{ asset('lte/dist/css/adminlte.min.css') }}">
-    <!-- Toastr -->
-    <link rel="stylesheet" href="{{ asset('lte/plugins/toastr/toastr.min.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 
+    <link rel="shortcut icon" href="{{ asset('assets/images/LOGO_KKI.png') }}" type="image/x-icon">
     <!-- Custom CSS -->
     <style>
         body {
-            background: #f4f6f9;
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
             height: 100vh;
             display: flex;
-            align-items: center;
             justify-content: center;
-            margin: 0;
-            /* Tambahkan ini untuk menghapus margin body */
+            align-items: center;
+            background-color: #f4f6f9;
+            color: #333;
         }
 
-        .login-card {
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        .login-wrapper {
+            background: #ffffff;
             border-radius: 10px;
-            background-color: white;
-            padding: 40px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
             width: 100%;
-            margin-top: 50px;
-            /* Membuat lebar 100% untuk mobile responsiveness */
-            max-width: 400px;
-            /* Batas maksimal lebar */
-
+            max-width: 420px;
+            padding: 40px;
         }
 
+        .login-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
 
-        .login-logo img {
-            width: 150px;
+        .login-header img {
+            width: 100px;
+        }
+
+        .login-header h2 {
+            font-weight: 600;
+            font-size: 20px;
+            margin: 15px 0 5px;
+            color: #444;
+        }
+
+        .login-header p {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .form-group {
             margin-bottom: 20px;
         }
 
-        .login-title {
-            font-weight: bold;
-            margin-bottom: 30px;
+        .form-group label {
+            font-size: 14px;
+            margin-bottom: 5px;
+            display: block;
+            color: #555;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 14px;
+            color: #333;
+        }
+
+        .form-control:focus {
+            border-color: #4caf50;
+            outline: none;
+            box-shadow: 0 0 5px rgba(76, 175, 80, 0.5);
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            background-color: #007bff;
+            color: #fff;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-login:hover {
+            background-color: #0056b3;
+        }
+
+        .form-check {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .form-check-label {
+            margin-left: 5px;
+            font-size: 14px;
+            color: #555;
+        }
+
+        .footer {
             text-align: center;
+            font-size: 14px;
+            color: #666;
+            margin-top: 20px;
+        }
+
+        .footer a {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
         }
     </style>
-
-    {{-- ---------- End of Admin LTE -------- --}}
-    <link rel="shortcut icon" href="{{ asset('assets/images/logo_koperasi_indonesia.png') }}" type="image/x-icon">
 </head>
 
 <body>
-
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-md-6">
-                <div class="login-card">
-                    <!-- Logo -->
-                    <div class="login-logo text-center">
-                        <img src="{{ asset('assets/images/LOGO_KKI.png') }}" alt="Logo Koperasi">
-                    </div>
-
-                    <!-- Title -->
-                    <h3 class="login-title">Login KKI Operational</h3>
-
-                    <!-- Login Form -->
-                    <form method="POST" action="/login">
-                        @csrf
-                        <div class="form-group">
-                            <label for="nik">{{ __('NIK') }}</label>
-                            <input id="nik" type="text" class="form-control @error('nik') is-invalid @enderror" name="nik" value="{{ old('nik') }}" required autocomplete="nik" autofocus>
-                            @error('nik')
-                                <span class="invalid-feedback" role="alert">
-                                    <strong>{{ $message }}</strong>
-                                </span>
-                            @enderror
-                        </div>
-
-                        <div class="form-group">
-                            <label for="password">{{ __('Password') }}</label>
-                        <input id="password" type="password" class="form-control @error('password') is-invalid @enderror" name="password" required autocomplete="current-password">
-                            @error('password')
-                                <span class="invalid-feedback" role="alert">
-                                    <strong>{{ $message }}</strong>
-                                </span>
-                            @enderror
-                        </div>
-
-                        <div class="form-group form-check">
-                            <input type="checkbox" class="form-check-input" id="remember" name="remember">
-                            <label class="form-check-label" for="remember">{{ __('Remember Me') }}</label>
-                        </div>
-
-                        <div class="form-group text-center">
-                            <button type="submit" class="btn btn-primary btn-block">{{ __('Login') }}</button>
-                        </div>
-                    </form>
-
-
-                    <!-- Toastr notifications -->
-                    @if (session('status'))
-                        <script>
-                            toastr.success('{{ session('status') }}');
-                        </script>
-                    @endif
-
-                </div>
-            </div>
+    <div class="login-wrapper">
+        <!-- Header -->
+        <div class="login-header">
+            <img src="{{ asset('assets/images/LOGO_KKI.png') }}" alt="Logo Koperasi">
+            <h2>Kopkar Indcement</h2>
+            <p>Please log in to continue</p>
         </div>
+
+        <!-- Login Form -->
+        <form method="POST" action="/login">
+            @csrf
+            <div class="form-group">
+                <label for="nik">NIK</label>
+                <input id="nik" type="text" class="form-control @error('nik') is-invalid @enderror" name="nik" value="{{ old('nik') }}" required autocomplete="nik" autofocus>
+                @error('nik')
+                <span class="invalid-feedback" role="alert">
+                    <strong>{{ $message }}</strong>
+                </span>
+                @enderror
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input id="password" type="password" class="form-control @error('password') is-invalid @enderror" name="password" required autocomplete="current-password">
+                @error('password')
+                <span class="invalid-feedback" role="alert">
+                    <strong>{{ $message }}</strong>
+                </span>
+                @enderror
+            </div>
+
+            <div class="form-check">
+                <input type="checkbox" class="form-check-input" id="remember" name="remember">
+                <label class="form-check-label" for="remember">Remember Me</label>
+            </div>
+
+            <button type="submit" class="btn-login">Login</button>
+        </form>
+
     </div>
-
-    @include('partials.toastr')
-
-    {{-- -------- Admin LTE -------- --}}
-    <!-- jQuery -->
-    <script src="{{ asset('lte/plugins/jquery/jquery.min.js') }}"></script>
-    <!-- Bootstrap 4 -->
-    <script src="{{ asset('lte/plugins/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
-    <!-- AdminLTE App -->
-    <script src="{{ asset('lte/dist/js/adminlte.js') }}"></script>
-    <script src="{{ asset('lte/plugins/toastr/toastr.min.js') }}"></script>
-
-    {{-- -------- End of Admin LTE -------- --}}
 </body>
 
 </html>

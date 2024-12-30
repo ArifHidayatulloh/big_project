@@ -34,7 +34,7 @@
                 @endif
 
                 <button type="button" class="btn btn-dark dropdown-toggle ml-auto shadow-sm" data-toggle="dropdown"
-                    aria-haspopup="true" aria-expanded="false">
+                    aria-haspopup="true" aria-expanded="false" @if ($workingLists->isEmpty()) disabled @endif>
                     <i class="fas fa-file-export"></i> Export
                 </button>
                 <div class="dropdown-menu dropdown-menu-right">
@@ -54,11 +54,6 @@
                         <input type="hidden" name="to_date" value="{{ request('to_date') }}">
                         <button type="submit" name="format" value="excel" class="dropdown-item">
                             <i class="fas fa-file-excel"></i> Export to Excel
-                        </button>
-                    </form>
-                    <form action="/export-working-list" method="GET">
-                        <button type="submit" name="format" value="pdf" class="dropdown-item">
-                            <i class="fas fa-file-pdf"></i> Export to PDF
                         </button>
                     </form>
                 </div>
@@ -106,42 +101,55 @@
                         <tr class="text-center">
                             <th style="border-top-left-radius: 10px;">#</th>
                             <th class="text-center">
-                                Department
-                                <a href="#" data-toggle="dropdown" aria-expanded="false" class="text-white"><i class="fas fa-sort-down"></i></a>
+                                @if (Auth::user()->role != 5)
+                                    Department
+                                    <a href="#" data-toggle="dropdown" aria-expanded="false" class="text-white"><i
+                                            class="fas fa-sort-down"></i></a>
 
-                                <!-- Dropdown menu untuk Department -->
-                                <div class="dropdown-menu dropdown-th dropdown-menu-right"
-                                    aria-labelledby="dropdownMenuButton">
-                                    @foreach ($departments as $department)
-                                        <a class="dropdown-item"
-                                            href="{{ url('/working-list') . '?' . http_build_query(array_merge(request()->query(), ['department' => $department->id])) }}">
-                                            {{ $department->name }}
-                                        </a>
-                                    @endforeach
-                                </div>
+                                    <!-- Dropdown menu untuk Department -->
+                                    <div class="dropdown-menu dropdown-th dropdown-menu-right"
+                                        aria-labelledby="dropdownMenuButton">
+                                        @foreach ($departments as $department)
+                                            <a class="dropdown-item"
+                                                href="{{ url('/working-list') . '?' . http_build_query(array_merge(request()->query(), ['department' => $department->id])) }}">
+                                                {{ $department->name }}
+                                            </a>
+                                        @endforeach
+                                    </div>
+                                @else
+                                    Department
+                                @endif
                             </th>
                             <th class="text-center">Working List</th>
                             <th class="text-center">
-                                PIC
-                                <a href="#" data-toggle="dropdown" aria-expanded="false" class="text-white"><i class="fas fa-sort-down"></i></a>
-                                <!-- Dropdown menu untuk PIC -->
-                                <div class="dropdown-menu dropdown-th dropdown-menu-right"
-                                    aria-labelledby="dropdownMenuButton">
-                                    @foreach ($pics as $pic)
-                                        <a class="dropdown-item"
-                                            href="{{ url('/working-list') . '?' . http_build_query(array_merge(request()->query(), ['pic' => $pic->id])) }}">{{ $pic->name }}</a>
-                                    @endforeach
-                                </div>
+                                @if (Auth::user()->role != 5)
+                                    PIC
+                                    <a href="#" data-toggle="dropdown" aria-expanded="false" class="text-white"><i
+                                            class="fas fa-sort-down"></i></a>
+                                    <!-- Dropdown menu untuk PIC -->
+                                    <div class="dropdown-menu dropdown-th dropdown-menu-right"
+                                        aria-labelledby="dropdownMenuButton">
+                                        @foreach ($pics as $pic)
+                                            <a class="dropdown-item"
+                                                href="{{ url('/working-list') . '?' . http_build_query(array_merge(request()->query(), ['pic' => $pic->id])) }}">{{ $pic->name }}</a>
+                                        @endforeach
+                                    </div>
+                                @else
+                                    PIC
+                                @endif
                             </th>
                             <th class="text-center">Related PIC</th>
                             <th class="text-center">
                                 Deadline
-                                <a href="{{ url('/working-list') . '?' . http_build_query(array_merge(request()->query(), ['sort_by' => 'deadline', 'sort_order' => request('sort_order') == 'asc' ? 'desc' : 'asc'])) }}" class="text-white">
-                                    <i class="fas fa-sort{{ request('sort_by') == 'deadline' ? (request('sort_order') == 'asc' ? '-up' : '-down') : '' }}"></i>
+                                <a href="{{ url('/working-list') . '?' . http_build_query(array_merge(request()->query(), ['sort_by' => 'deadline', 'sort_order' => request('sort_order') == 'asc' ? 'desc' : 'asc'])) }}"
+                                    class="text-white">
+                                    <i
+                                        class="fas fa-sort{{ request('sort_by') == 'deadline' ? (request('sort_order') == 'asc' ? '-up' : '-down') : '' }}"></i>
                                 </a>
                             </th>
                             <th class="text-center">Status
-                                <a href="#" data-toggle="dropdown" aria-expanded="false" class="text-white"><i class="fas fa-sort-down"></i></a>
+                                <a href="#" data-toggle="dropdown" aria-expanded="false" class="text-white"><i
+                                        class="fas fa-sort-down"></i></a>
                                 <!-- Dropdown menu untuk Status -->
                                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuButton">
                                     <form action="/working-list" method="GET" class="d-inline-block">
@@ -164,8 +172,7 @@
                                                 <input type="checkbox" class="form-check-input" id="status_outstanding"
                                                     name="status[]" value="Overdue"
                                                     {{ in_array('Overdue', request('status', [])) ? 'checked' : '' }}>
-                                                <label class="form-check-label"
-                                                    for="status_outstanding">Overdue</label>
+                                                <label class="form-check-label" for="status_outstanding">Overdue</label>
                                             </div>
                                         </div>
                                         <div class="px-3 py-2">
@@ -180,8 +187,10 @@
                             <th class="text-center">Status Comment</th>
                             <th class="text-center">
                                 Score
-                                <a href="{{ url('/working-list') . '?' . http_build_query(array_merge(request()->query(), ['sort_by' => 'score', 'sort_order' => request('sort_order') == 'asc' ? 'desc' : 'asc'])) }}" class="text-white">
-                                    <i class="fas fa-sort{{ request('sort_by') == 'score' ? (request('sort_order') == 'asc' ? '-up' : '-down') : '' }}"></i>
+                                <a href="{{ url('/working-list') . '?' . http_build_query(array_merge(request()->query(), ['sort_by' => 'score', 'sort_order' => request('sort_order') == 'asc' ? 'desc' : 'asc'])) }}"
+                                    class="text-white">
+                                    <i
+                                        class="fas fa-sort{{ request('sort_by') == 'score' ? (request('sort_order') == 'asc' ? '-up' : '-down') : '' }}"></i>
                                 </a>
                             </th>
                             <th style="border-top-right-radius: 10px;">Actions</th>

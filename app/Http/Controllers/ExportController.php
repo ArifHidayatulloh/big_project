@@ -80,6 +80,7 @@ class ExportController extends Controller
             $percentage = $totalPlannedBudget > 0 ? ($totalActualSpent / $totalPlannedBudget) * 100 : 0;
 
             return [
+                'cost_review_id' => $description->cost_review_id,
                 'description' => $description->description_text,
                 'planned_budget' => $totalPlannedBudget,
                 'actual_spent' => $totalActualSpent,
@@ -87,7 +88,7 @@ class ExportController extends Controller
                 'percentage' => $percentage,
                 'remarks' => $remarks,
                 'category' => $description->subcategory->category->category_name ?? 'N/A',
-                'subcategory' => $description->subcategory->sub_category_name ?? 'N/A',
+                'subcategory' => $description->subcategory,
             ];
         });
 
@@ -143,6 +144,7 @@ class ExportController extends Controller
             return [
                 'category' => $description_group->subcategory->category->category_name ?? 'N/A',
                 'subcategory' => $description_group->subcategory->sub_category_name ?? 'N/A',
+                'subcategory_id' => $description_group->subcategory->id,
                 'total_planned_budget' => $totalPlannedBudget,
                 'total_actual_spent' => $totalActualSpent,
                 'variance' => $variance,

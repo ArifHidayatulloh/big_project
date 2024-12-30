@@ -94,6 +94,8 @@
                                 $currentCategory = null;
                                 $currentSubcategory = null;
                                 $hasData = false; // Inisialisasi variabel
+                                $totalPlannedBudget = 0; // Inisialisasi variabel
+                                $totalActualSpent = 0; // Inisialisasi variabel
                             @endphp
 
                             @foreach ($description_groups as $description)
@@ -116,13 +118,74 @@
                                     @if ($currentSubcategory !== $description['subcategory'])
                                         @php
                                             $currentSubcategory = $description['subcategory'];
+
+                                            // Ambil semua description_group_id untuk subkategori ini
+                                            $descriptionGroups = \App\Models\BudgetDescriptionGrouping::where(
+                                                'sub_category_id',
+                                                $description['subcategory_id'],
+                                            )->pluck('id');
+
+                                            // Ambil semua description yang terkait dengan description_group_id
+                                            $desc = \App\Models\BudgetDescription::whereIn(
+                                                'description_grouping_id',
+                                                $descriptionGroups,
+                                            )->get();
+
+                                            // Menghitung total planned budget berdasarkan filter tahun dan bulan
+                                            $totalPlannSubcategory = $desc
+                                                ? $desc
+                                                    ->flatMap(function ($item) use ($selectedYear, $selectedMonths) {
+                                                        return $item->monthly_budget
+                                                            ->where('year', $selectedYear)
+                                                            ->whereIn('month', $selectedMonths);
+                                                    })
+                                                    ->sum('planned_budget')
+                                                : 0;
+
+                                            // Menghitung total actual budget berdasarkan filter tahun dan bulan
+                                            $totalActSubcategory = $desc
+                                                ? $desc
+                                                    ->flatMap(function ($item) use ($selectedYear, $selectedMonths) {
+                                                        return $item->monthly_budget
+                                                            ->where('year', $selectedYear)
+                                                            ->whereIn('month', $selectedMonths)
+                                                            ->flatMap(function ($monthlyBudget) {
+                                                                return $monthlyBudget->actual; // Mengakses relasi actual
+                                                            });
+                                                    })
+                                                    ->sum('actual_spent') // Sum nilai actual_spent dari actual
+                                                : 0;
+
+                                            $variance = $totalPlannSubcategory - $totalActSubcategory;
+                                            $percentage =
+                                                $totalPlannSubcategory > 0
+                                                    ? ($totalActSubcategory / $totalPlannSubcategory) * 100
+                                                    : 0;
+
+                                            // Tambahkan ke total keseluruhan
+                                            $totalPlannedBudget += $totalPlannSubcategory;
+                                            $totalActualSpent += $totalActSubcategory;
+                                            $totalVar = $totalPlannedBudget - $totalActualSpent;
+                                            $totalPercentage =
+                                                $totalPlannedBudget > 0
+                                                    ? ($totalActualSpent / $totalPlannedBudget) * 100
+                                                    : 0;
                                         @endphp
-                                        <tr>
-                                            <td colspan="6" class="font-italic bg-light" style="padding-left: 20px;">
+
+                                        <tr class="bg-light">
+                                            <td class="font-italic  style="padding-left: 20px;">
                                                 {{ $currentSubcategory }}
                                             </td>
+                                            <td class="text-right">{{ number_format($totalActSubcategory, 2, ',', '.') }}
+                                            </td>
+                                            <td class="text-right">{{ number_format($totalPlannSubcategory, 2, ',', '.') }}
+                                            </td>
+                                            <td class="text-right">{{ number_format($variance, 2, ',', '.') }}</td>
+                                            <td class="text-center">{{ number_format($percentage, 2) }}%</td>
+                                            <td></td>
                                         </tr>
                                     @endif
+
 
                                     <!-- Menampilkan Description -->
                                     <tr>
@@ -153,6 +216,20 @@
                                 </tr>
                             @endif
                         </tbody>
+                        <tfoot class="bg-info">
+                            <tr>
+                                <td class="text-left font-weight-bold">Total</td>
+                                <td class="text-right font-weight-bold">
+                                    {{ number_format($totalActualSpent, 2, ',', '.') }}
+                                </td>
+                                <td class="text-right font-weight-bold">
+                                    {{ number_format($totalPlannedBudget, 2, ',', '.') }}
+                                </td>
+                                <td class="text-right font-weight-bold">{{ number_format($totalVar, 2, ',', '.') }}</td>
+                                <td class="text-center">{{ number_format($totalPercentage, 2) }}%</td>
+                                <td></td>
+                            </tr>
+                        </tfoot>
                     </table>
                 </div>
             </div>

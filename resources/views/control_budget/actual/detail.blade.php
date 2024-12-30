@@ -10,7 +10,8 @@
                 </div><!-- /.col -->
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item"><a href="#">Cost Review</a></li>
+                        <li class="breadcrumb-item"><a href="/dashboard"><i class="fas fa-home"></i></a></li>
+                        <li class="breadcrumb-item"><a href="/cost-review">Cost Review</a></li>
                         <li class="breadcrumb-item active">Actual</li>
                     </ol>
                 </div><!-- /.col -->

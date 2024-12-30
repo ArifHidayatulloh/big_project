@@ -1,9 +1,11 @@
 <table>
     <thead>
         <tr>
-            <th colspan="7" style="text-align: center; font-size: 18px; font-weight: bold; color: #4CAF50; padding: 10px 0;">
-                <span style="border: 2px solid #4CAF50; padding: 5px 20px; border-radius: 5px; background-color: #E8F5E9;">
-                    Cost Review Report
+            <th colspan="7"
+                style="text-align: center; font-size: 18px; font-weight: bold; color: #4CAF50; padding: 10px 0;">
+                <span
+                    style="border: 2px solid #4CAF50; padding: 5px 20px; border-radius: 5px; background-color: #E8F5E9;">
+                    Cost Review Report Consolidated
                 </span>
             </th>
         </tr>
@@ -12,9 +14,12 @@
                 Months: {{ implode(', ', $months) }} | Year: {{ $year }}
             </th>
         </tr>
-        <tr><td colspan="7" style="height: 20px;"></td></tr> <!-- Empty row for spacing -->
         <tr>
-            <th style="width: 300px; background-color: #00BCD4; color: white; text-align: center;" colspan="2">DESCRIPTION</th>
+            <td colspan="7" style="height: 20px;"></td>
+        </tr> <!-- Empty row for spacing -->
+        <tr>
+            <th style="width: 300px; background-color: #00BCD4; color: white; text-align: center;" colspan="2">
+                DESCRIPTION</th>
             <th style="width: 120px; background-color: #00BCD4; color: white; text-align: center;">ACTUAL</th>
             <th style="width: 120px; background-color: #00BCD4; color: white; text-align: center;">PLAN</th>
             <th style="width: 120px; background-color: #00BCD4; color: white; text-align: center;">VAR</th>
@@ -27,6 +32,8 @@
             $currentCategory = null;
             $currentSubcategory = null;
             $hasData = false;
+            $totalPlannedBudget = 0; // Inisialisasi variabel
+            $totalActualSpent = 0; // Inisialisasi variabel
         @endphp
 
         @foreach ($descriptions as $description)
@@ -43,16 +50,75 @@
                 @endif
 
                 @if ($currentSubcategory !== $description['subcategory'])
-                    @php $currentSubcategory = $description['subcategory']; @endphp
-                    <tr>
-                        <td colspan="7" style="font-style: italic; background-color: #f0f0f0; padding-left: 20px;">
+                    @php
+                        $currentSubcategory = $description['subcategory'];
+                        // Ambil semua description_group_id untuk subkategori ini
+                        $descriptionGroups = \App\Models\BudgetDescriptionGrouping::where(
+                            'sub_category_id',
+                            $description['subcategory_id'],
+                        )->pluck('id');
+
+                        // Ambil semua description yang terkait dengan description_group_id
+                        $desc = \App\Models\BudgetDescription::whereIn(
+                            'description_grouping_id',
+                            $descriptionGroups,
+                        )->get();
+
+                        // Menghitung total planned budget berdasarkan filter tahun dan bulan
+                        $totalPlannSubcategory = $desc
+                            ? $desc
+                                ->flatMap(function ($item) use ($year, $months) {
+                                    return $item->monthly_budget
+                                        ->where('year', $year)
+                                        ->whereIn('month', $months);
+                                })
+                                ->sum('planned_budget')
+                            : 0;
+
+                        // Menghitung total actual budget berdasarkan filter tahun dan bulan
+                        $totalActSubcategory = $desc
+                            ? $desc
+                                ->flatMap(function ($item) use ($year, $months) {
+                                    return $item->monthly_budget
+                                        ->where('year', $year)
+                                        ->whereIn('month', $months)
+                                        ->flatMap(function ($monthlyBudget) {
+                                            return $monthlyBudget->actual; // Mengakses relasi actual
+                                        });
+                                })
+                                ->sum('actual_spent') // Sum nilai actual_spent dari actual
+                            : 0;
+
+                        $variance = $totalPlannSubcategory - $totalActSubcategory;
+                        $percentage =
+                            $totalPlannSubcategory > 0 ? ($totalActSubcategory / $totalPlannSubcategory) * 100 : 0;
+
+                        // Tambahkan ke total keseluruhan
+                        $totalPlannedBudget += $totalPlannSubcategory;
+                        $totalActualSpent += $totalActSubcategory;
+                        $totalVar = $totalPlannedBudget - $totalActualSpent;
+                        $totalPercentage =
+                            $totalPlannedBudget > 0 ? ($totalActualSpent / $totalPlannedBudget) * 100 : 0;
+                    @endphp
+                    <tr class="bg-light">
+                        <td style="width: 20px;"></td>
+                        <td style="font-style: italic; background-color: #f0f0f0; margin-left: 20px;">
                             {{ $currentSubcategory }}
                         </td>
+                        <td style="text-align: right; background-color: #f0f0f0; ">
+                            {{ number_format($totalActSubcategory, 2, ',', '.') }}</td>
+                        <td style="text-align: right; background-color: #f0f0f0; ">
+                            {{ number_format($totalPlannSubcategory, 2, ',', '.') }}</td>
+                        <td style="text-align: right; background-color: #f0f0f0; ">
+                            {{ number_format($variance, 2, ',', '.') }}</td>
+                        <td style="text-align: center; background-color: #f0f0f0; ">
+                            {{ number_format($percentage, 2) }}%</td>
+                        <td style="background-color: #f0f0f0; "></td>
                     </tr>
                 @endif
 
                 <tr>
-                    <td style="width: 20px;"></td>
+                    <td style="width: 40px;"></td>
                     <td style="padding-left: 40px; width:300px;">{{ $description['description_group'] ?? 'N/A' }}</td>
                     <td style="text-align: right;">
                         {{ number_format($description['total_actual_spent'], 2, ',', '.') }}
@@ -79,4 +145,21 @@
             </tr>
         @endif
     </tbody>
+    <tfoot class="bg-info">
+        <tr>
+            <td style="text-align: left; background-color: #00BCD4; color: white; font-weight: bold;" colspan="2">
+                Total</td>
+            <td style="text-align: right; background-color: #00BCD4; color: white; font-weight: bold;">
+                {{ number_format($totalActualSpent, 2, ',', '.') }}
+            </td>
+            <td style="text-align: right; background-color: #00BCD4; color: white; font-weight: bold;">
+                {{ number_format($totalPlannedBudget, 2, ',', '.') }}
+            </td>
+            <td style="text-align: right; background-color: #00BCD4; color: white; font-weight: bold;">
+                {{ number_format($totalVar, 2, ',', '.') }}</td>
+            <td style="text-align: center; background-color: #00BCD4; color: white; font-weight: bold;">
+                {{ number_format($totalPercentage, 2) }}%</td>
+            <td style="text-align: center; background-color: #00BCD4; color: white; font-weight: bold;"></td>
+        </tr>
+    </tfoot>
 </table>

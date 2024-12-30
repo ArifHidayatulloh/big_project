@@ -47,6 +47,11 @@ class WorkingListController extends Controller
             $query->orderBy('created_at', 'desc');
         }
 
+        $workingListAll = $query->get();
+        foreach($workingListAll as $working_list){
+            $working_list->updateStatusIfNeeded();
+        }
+
         // Ambil data dengan relasi
         $workingLists = $query->with(['commentDepheads.updatePics', 'department', 'picUser'])
             ->paginate(25)
@@ -259,9 +264,7 @@ class WorkingListController extends Controller
             // Gabungkan semua data
             $users = $pic->merge($depUsers)->merge($role_2)->unique('id')->sortBy('name');
         } else {
-            $users = User::where('role', '!=', 1) // Ambil semua pengguna kecuali role 1
-                ->orderBy('name', 'asc')
-                ->get();
+            $users = User::orderBy('name', 'asc')->get();
         }
 
         return view('working_list.create', [

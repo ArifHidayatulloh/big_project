@@ -136,63 +136,47 @@ class CostReviewController extends Controller
     // End of manage cost review
 
     // Show cost review of unit
-    function show(Request $request, $id)
+    public function show(Request $request, $id)
     {
         $costReview = CostReview::findOrFail($id);
 
+        // Dapatkan bulan dan tahun yang dipilih
         $selectedYear = $request->query('year', date('Y'));
         $selectedMonth = $request->query('month', date('F'));
 
-        $descriptions = BudgetDescription::with(['monthly_budget' => function ($query) use ($selectedYear, $selectedMonth) {
-            $query->where('year', $selectedYear)
-                ->where('month', $selectedMonth);
-        }])
-            ->where('cost_review_id', $costReview->id)
-            ->whereHas('monthly_budget', function ($query) use ($selectedYear, $selectedMonth) {
+        // Query data deskripsi dengan semua relasi yang diperlukan
+        $descriptions = BudgetDescription::with([
+            'subcategory',
+            'subcategory.category',
+            'monthly_budget' => function ($query) use ($selectedYear, $selectedMonth) {
                 $query->where('year', $selectedYear)
-                    ->where('month', $selectedMonth);
-            })
-            ->get();
+                    ->where('month', $selectedMonth)
+                    ->with('actual');
+            }
+        ])
+        ->where('cost_review_id', $costReview->id)
+        ->get();
 
-        $years = [
-            '2024',
-            '2025',
-            '2026',
-            '2027',
-            '2028',
-            '2029',
-        ];
-
+        $years = range(date('Y') - 5, date('Y') + 5); // Daftar tahun
         $months = [
-            'January',
-            'February',
-            'March',
-            'April',
-            'May',
-            'June',
-            'July',
-            'August',
-            'September',
-            'October',
-            'November',
-            'December',
+            'January', 'February', 'March', 'April', 'May', 'June',
+            'July', 'August', 'September', 'October', 'November', 'December',
         ];
 
-        $hasDataForSelectedMonth = $descriptions->isNotEmpty();
+        $hasDataForSelectedMonth = $descriptions->filter(function ($description) {
+            return $description->monthly_budget->isNotEmpty(); // Periksa apakah relasi monthly_budget tidak kosong
+        })->isNotEmpty();
 
-        return view('control_budget.cost_review.review_cost', compact('costReview', 'descriptions', 'years', 'months', 'selectedMonth', 'selectedYear', 'hasDataForSelectedMonth'));
+        return view('control_budget.cost_review.review_cost', compact(
+            'costReview', 'descriptions', 'years', 'months',
+            'selectedMonth', 'selectedYear', 'hasDataForSelectedMonth'
+        ));
     }
+
 
     public function show_period(Request $request, $id)
     {
-        $years = [
-            '2024',
-            '2025',
-            '2026',
-            '2027',
-            '2028',
-            '2029',
-        ];
+       $years = range(date('Y') - 5, date('Y') + 5); // Daftar tahun
 
         $months = [
             'January',
@@ -254,7 +238,7 @@ class CostReviewController extends Controller
                 'percentage' => $percentage,
                 'remarks' => $remarks,
                 'category' => $description->subcategory->category->category_name ?? 'N/A',
-                'subcategory' => $description->subcategory->sub_category_name ?? 'N/A',
+                'subcategory' => $description->subcategory,
                 'has_monthly_budget' => $hasMonthlyBudget, // Tambahkan flag
             ];
         });
